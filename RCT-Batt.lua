@@ -1,21 +1,22 @@
---[[----------------------------------------------------------------------------
+--[[
+	---------------------------------------------------------
 	
-		Battery Percentage application converts capacity used (mAh)
-		to percentage-range 100-0% from full to empty battery. 
+    Battery Percentage application converts capacity used (mAh)
+	to percentage-range 100-0% from full to empty battery. 
 	
-		Possibility to define a 3-position switch to select between
-		3 different size packs. If no switch is defined only battery
-		1 is used.
+	Possibility to define a 3-position switch to select between
+	3 different size packs. If no switch is defined only battery
+	1 is used.
 	
-		Also app makes a LUA control (switch) that can be used as
-		any other switch, voices, alarms etc. Intended use is to
-		Sound On Event and "Battery empty"-notification.
-		---------------------------------------------------------
-		Battery Percentage is part of RC-Thoughts Jeti Tools.
-		---------------------------------------------------------
-		Released under MIT-license by Tero @ RC-Thoughts.com 2016
---]]----------------------------------------------------------------------------
-local appName = "Battery Percentage"
+	Also app makes a LUA control (switch) that can be used as
+	any other switch, voices, alarms etc.
+	
+	---------------------------------------------------------
+	Battery Percentage is part of RC-Thoughts Jeti Tools.
+	---------------------------------------------------------
+	Released under MIT-license by Tero @ RC-Thoughts.com 2016
+	---------------------------------------------------------
+--]]
 --------------------------------------------------------------------------------
 -- Locals for the application
 local sens, sensid, senspa, id, param, telVal
@@ -25,6 +26,20 @@ local alarm1Tr, alarm2Tr, alarm3Tr
 local sensorLalist = {"..."}
 local sensorIdlist = {"..."}
 local sensorPalist = {"..."}
+--------------------------------------------------------------------------------
+-- Translations
+local transSensor = {en = "Select sensor", de = "Wählen Sensor"}
+local transSettings1 = {en = "Battery 1 Settings", de = "Batterie 1 Einstellungen"}
+local transSettings2 = {en = "Battery 2 Settings", de = "Batterie 2 Einstellungen"}
+local transSettings3 = {en = "Battery 3 Settings", de = "Batterie 3 Einstellungen"}
+local transLabel = {en = "Sensor", de = "Sensor"}
+local transLabelW = {en = "Window Label", de = "Fenster Etikett"}
+local transSwitch1 = {en = "Battery Switch", de = "Batterie Schalter"}
+local transSwitch2 = {en = "Battery Switch", de = "Batterie Schalter"}
+local transSwitch3 = {en = "Battery Switch", de = "Batterie Schalter"}
+local transCapa = {en = "Battery Capacity (mAh)", de = "Batteriekapazität (mAh)"}
+local transAlm = {en = "Alarm", de = "Alarm"}
+local transAlmVal = {en = "Alarm Value (%)", de = "Alarmwert (%)"}
 --------------------------------------------------------------------------------
 -- Read available sensors for user to select
 local sensors = system.getSensors()
@@ -134,6 +149,20 @@ end
 -- Draw the main form (Application inteface)
 -- Initialize with page 1
 local function initForm(subform)
+	local locale = system.getLocale()
+	local transSensor = transSensor[locale] or transSensor["en"]
+	local transSettings1 = transSettings1[locale] or transSettings1["en"]
+	local transSettings2 = transSettings2[locale] or transSettings2["en"]
+	local transSettings3 = transSettings3[locale] or transSettings3["en"]
+	local transLabel = transLabel[locale] or transLabel["en"]
+	local transLabelW = transLabelW[locale] or transLabelW["en"]
+	local transSwitch1 = transSwitch1[locale] or transSwitch1["en"]
+	local transSwitch2 = transSwitch2[locale] or transSwitch2["en"]
+	local transSwitch3 = transSwitch3[locale] or transSwitch3["en"]
+	local transCapa = transCapa[locale] or transCapa["en"]
+	local transAlm = transAlm[locale] or transAlm["en"]
+	local transAlmVal = transAlmVal[locale] or transAlmVal["en"]
+	----
 	if(subform == 1) then
 		form.setButton(1,"Batt1",HIGHLIGHTED)
 		form.setButton(2,"Batt2",ENABLED)
@@ -143,32 +172,32 @@ local function initForm(subform)
 		form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
 		
 		form.addRow(1)
-		form.addLabel({label="Sensor",font=FONT_BOLD})
+		form.addLabel({label=transLabel,font=FONT_BOLD})
 		
 		form.addRow(2)
-		form.addLabel({label="Select sensor"})
+		form.addLabel({label=transSensor})
 		form.addSelectbox(sensorLalist,sens,true,sensorChanged)
 		
 		form.addRow(1)
-		form.addLabel({label="Battery 1 Settings",font=FONT_BOLD})
+		form.addLabel({label=transSettings1,font=FONT_BOLD})
 		
 		form.addRow(2)
-		form.addLabel({label="Window label",width=160})
+		form.addLabel({label=transLabelW,width=160})
 		form.addTextbox(lbl1,14,lbl1Changed)
 		
 		form.addRow(2)
-		form.addLabel({label="Battery 1 switch"})
+		form.addLabel({label=transSwitch1})
 		form.addInputbox(Sw1,true,SwChanged1)
 		
 		form.addRow(2)
-		form.addLabel({label="Battery Capacity"})
+		form.addLabel({label=transCapa,width=180})
 		form.addIntbox(capa1,0,32767,0,0,1,capa1Changed)
 		
 		form.addRow(1)
-		form.addLabel({label="Alarm",font=FONT_BOLD})
+		form.addLabel({label=transAlm,font=FONT_BOLD})
 		
 		form.addRow(2)
-		form.addLabel({label="Alarm value (%)"})
+		form.addLabel({label=transAlmVal})
 		form.addIntbox(alarm1,0,32767,0,0,1,alarm1Changed)
 		
 		form.addRow(1)
@@ -176,6 +205,7 @@ local function initForm(subform)
 		
 		form.setFocusedRow (1)
 		formID = 1
+		
 		else
 		-- If we are on second page build the form for display
 		if(subform == 2) then
@@ -187,25 +217,25 @@ local function initForm(subform)
 			form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
 			
 			form.addRow(1)
-			form.addLabel({label="Battery 2 Settings",font=FONT_BOLD})
+			form.addLabel({label=transSettings2,font=FONT_BOLD})
 			
 			form.addRow(2)
-			form.addLabel({label="Window label",width=160})
+			form.addLabel({label=transLabelW,width=160})
 			form.addTextbox(lbl2,14,lbl2Changed)
 			
 			form.addRow(2)
-			form.addLabel({label="Battery 2 switch"})
+			form.addLabel({label=transSwitch2})
 			form.addInputbox(Sw2,true,SwChanged2)
 			
 			form.addRow(2)
-			form.addLabel({label="Battery Capacity"})
+			form.addLabel({label=transCapa,width=180})
 			form.addIntbox(capa2,0,32767,0,0,1,capa2Changed)
 			
 			form.addRow(1)
-			form.addLabel({label="Alarm",font=FONT_BOLD})
+			form.addLabel({label=transAlm,font=FONT_BOLD})
 			
 			form.addRow(2)
-			form.addLabel({label="Alarm % value"})
+			form.addLabel({label=transAlmVal})
 			form.addIntbox(alarm2,0,32767,0,0,1,alarm2Changed)
 			
 			form.addRow(1)
@@ -213,6 +243,7 @@ local function initForm(subform)
 			
 			form.setFocusedRow (1)
 			formID = 2
+			
 			else
 			-- If we are on third page build the form for display
 			if(subform == 3) then
@@ -224,25 +255,25 @@ local function initForm(subform)
 				form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
 				
 				form.addRow(1)
-				form.addLabel({label="Battery 3 Settings",font=FONT_BOLD})
+				form.addLabel({label=transSettings3,font=FONT_BOLD})
 				
 				form.addRow(2)
-				form.addLabel({label="Window label",width=160})
+				form.addLabel({label=transLabelW,width=160})
 				form.addTextbox(lbl3,14,lbl3Changed)
 				
 				form.addRow(2)
-				form.addLabel({label="Battery 3 switch"})
+				form.addLabel({label=transSwitch3})
 				form.addInputbox(Sw3,true,SwChanged3)
 				
 				form.addRow(2)
-				form.addLabel({label="Battery Capacity"})
+				form.addLabel({label=transCapa,width=180})
 				form.addIntbox(capa3,0,32767,0,0,1,capa3Changed)
 				
 				form.addRow(1)
-				form.addLabel({label="Alarm",font=FONT_BOLD})
+				form.addLabel({label=transAlm,font=FONT_BOLD})
 				
 				form.addRow(2)
-				form.addLabel({label="Alarm % value"})
+				form.addLabel({label=transAlmVal})
 				form.addIntbox(alarm3,0,32767,0,0,1,alarm3Changed)
 				
 				form.addRow(1)
@@ -377,19 +408,30 @@ local function loop()
 		end
 	end
 end
---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------Batterie 1
 -- Application initialization
 local function init()
-	system.registerForm(1,MENU_APPS,appName,initForm,keyPressed)
+	local locale = system.getLocale()
+	local transControl = {en = "Battery Alarm", de = "Batterie-Warnung"}
+	local transAppName = {en = "Battery Percentage", de = "Batterie-Prozentsatz"}
+	local transBatt1 = {en = "Battery 1", de = "Batterie 1"}
+	local transBatt2 = {en = "Battery 2", de = "Batterie 2"}
+	local transBatt3 = {en = "Battery 3", de = "Batterie 3"}
+	local transControl = transControl[locale] or transControl["en"]
+	local transAppName = transAppName[locale] or transAppName["en"]
+	local transBatt1 = transBatt1[locale] or transBatt1["en"]
+	local transBatt2 = transBatt2[locale] or transBatt2["en"]
+	local transBatt3 = transBatt3[locale] or transBatt3["en"]
+	local appName = transAppName
 	telVal = "-"
 	sens = system.pLoad("sens",0)
 	sensid = system.pLoad("sensid",0)
 	senspa = system.pLoad("senspa",0)
 	id = system.pLoad("id",0)
 	param = system.pLoad("param",0)
-	lbl1 = system.pLoad("lbl1","Battery 1")
-	lbl2 = system.pLoad("lbl2","Battery 2")
-	lbl3 = system.pLoad("lbl3","Battery 3")
+	lbl1 = system.pLoad("lbl1",transBatt1)
+	lbl2 = system.pLoad("lbl2",transBatt2)
+	lbl3 = system.pLoad("lbl3",transBatt3)
 	capa1 = system.pLoad("capa1",0)
 	capa2 = system.pLoad("capa2",0)
 	capa3 = system.pLoad("capa3",0)
@@ -403,7 +445,8 @@ local function init()
 	Sw2 = system.pLoad("Sw2")
 	Sw3 = system.pLoad("Sw3")
 	system.registerTelemetry(1,lbl1,2,printTelemetry)
-	system.registerControl (10, "Battery Alarm", "B01")
+	system.registerControl (10, transControl, "B01")
+	system.registerForm(1,MENU_APPS,appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-return {init=init, loop=loop, author="RC-Thoughts", version="1.0", name=appName} 					
+return {init=init, loop=loop, author="RC-Thoughts", version="1.1", name=appName} 					
