@@ -18,6 +18,11 @@
 	---------------------------------------------------------
 --]]
 --------------------------------------------------------------------------------
+local locale = system.getLocale()
+local transAppName = {en = "Battery Percentage", de = "Batterie-Prozentsatz"}
+local transAppName = transAppName[locale] or transAppName["en"]
+local appName = transAppName
+--------------------------------------------------------------------------------
 -- Locals for the application
 local sens, sensid, senspa, id, param, telVal
 local res1, res2, res3, lbl1, lbl2, lbl3
@@ -413,15 +418,15 @@ end
 local function init()
 	local locale = system.getLocale()
 	local transControl = {en = "Battery Alarm", de = "Batterie-Warnung"}
-	local transAppName = {en = "Battery Percentage", de = "Batterie-Prozentsatz"}
 	local transBatt1 = {en = "Battery 1", de = "Batterie 1"}
 	local transBatt2 = {en = "Battery 2", de = "Batterie 2"}
 	local transBatt3 = {en = "Battery 3", de = "Batterie 3"}
 	local transControl = transControl[locale] or transControl["en"]
-	local transAppName = transAppName[locale] or transAppName["en"]
 	local transBatt1 = transBatt1[locale] or transBatt1["en"]
 	local transBatt2 = transBatt2[locale] or transBatt2["en"]
 	local transBatt3 = transBatt3[locale] or transBatt3["en"]
+	local transAppName = {en = "Battery Percentage", de = "Batterie-Prozentsatz"}
+	local transAppName = transAppName[locale] or transAppName["en"]
 	local appName = transAppName
 	telVal = "-"
 	sens = system.pLoad("sens",0)
