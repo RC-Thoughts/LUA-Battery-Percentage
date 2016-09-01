@@ -1,0 +1,37 @@
+{
+  "default":"en",
+  "en":{
+    "appName":"Battery Percentage",
+    "Sensor":"Select sensor",
+    "Settings1":"Battery 1 Settings:",
+	"Settings2":"Battery 2 Settings:",
+	"Settings3":"Battery 3 Settings:",
+    "Label":"Sensor:",
+    "LabelW":"Window Label",
+    "Switch":"Battery Switch",
+    "Capa":"Battery Capacity (mAh)",
+    "Alm":"Alarm",
+    "AlmVal":"Alarm Value (%)",
+	"Control":"Battery Alarm",
+	"Batt1":"Battery 1",
+	"Batt2":"Battery 2",
+	"Batt3":"Battery 3"
+  },
+  "de":{
+    "appName":"Batterie-Prozentsatz",
+    "Sensor":"Wählen Sensor",
+    "Settings1":"Batterie 1 Einstellungen:",
+	"Settings2":"Batterie 2 Einstellungen",
+	"Settings3":"Batterie 3 Einstellungen",
+    "Label":"Sensor:",
+    "LabelW":"Fenster Etikett",
+    "Switch":"Batterie Schalter",
+    "Capa":"Batteriekapazität (mAh)",
+    "Alm":"Alarm",
+    "AlmVal":"Alarmwert (%)",
+	"Control":"Batterie-Warnung",
+	"Batt1":"Batterie 1",
+	"Batt2":"Batterie 2",
+	"Batt3":"Batterie 3"
+  }
+}

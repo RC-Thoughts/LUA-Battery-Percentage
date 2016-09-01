@@ -1,6 +1,5 @@
 --[[
 	---------------------------------------------------------
-	
     Battery Percentage application converts capacity used (mAh)
 	to percentage-range 100-0% from full to empty battery. 
 	
@@ -11,6 +10,7 @@
 	Also app makes a LUA control (switch) that can be used as
 	any other switch, voices, alarms etc.
 	
+	Localisation-file has to be as /Apps/Lang/RCT-Batt.jsn
 	---------------------------------------------------------
 	Battery Percentage is part of RC-Thoughts Jeti Tools.
 	---------------------------------------------------------
@@ -18,13 +18,8 @@
 	---------------------------------------------------------
 --]]
 --------------------------------------------------------------------------------
-local locale = system.getLocale()
-local transAppName = {en = "Battery Percentage", de = "Batterie-Prozentsatz"}
-local transAppName = transAppName[locale] or transAppName["en"]
-local appName = transAppName
---------------------------------------------------------------------------------
 -- Locals for the application
-local sens, sensid, senspa, id, param, telVal
+local sens, sensid, senspa, id, param, telVal, trans
 local res1, res2, res3, lbl1, lbl2, lbl3
 local alarm1, alarm2, alarm3, Sw1, Sw2, Sw3
 local alarm1Tr, alarm2Tr, alarm3Tr
@@ -32,19 +27,33 @@ local sensorLalist = {"..."}
 local sensorIdlist = {"..."}
 local sensorPalist = {"..."}
 --------------------------------------------------------------------------------
--- Translations
-local transSensor = {en = "Select sensor", de = "Wählen Sensor"}
-local transSettings1 = {en = "Battery 1 Settings", de = "Batterie 1 Einstellungen"}
-local transSettings2 = {en = "Battery 2 Settings", de = "Batterie 2 Einstellungen"}
-local transSettings3 = {en = "Battery 3 Settings", de = "Batterie 3 Einstellungen"}
-local transLabel = {en = "Sensor", de = "Sensor"}
-local transLabelW = {en = "Window Label", de = "Fenster Etikett"}
-local transSwitch1 = {en = "Battery Switch", de = "Batterie Schalter"}
-local transSwitch2 = {en = "Battery Switch", de = "Batterie Schalter"}
-local transSwitch3 = {en = "Battery Switch", de = "Batterie Schalter"}
-local transCapa = {en = "Battery Capacity (mAh)", de = "Batteriekapazität (mAh)"}
-local transAlm = {en = "Alarm", de = "Alarm"}
-local transAlmVal = {en = "Alarm Value (%)", de = "Alarmwert (%)"}
+-- Function for translation file-reading
+local function readFile(path) 
+	local f = io.open(path,"r")
+	local lines={}
+	if(f) then
+		while 1 do 
+			local buf=io.read(f,512)
+			if(buf ~= "")then 
+				lines[#lines+1] = buf
+				else
+				break   
+			end   
+		end 
+		io.close(f)
+		return table.concat(lines,"") 
+	end
+end 
+--------------------------------------------------------------------------------
+-- Read translations
+local function setLanguage()	
+	local lng=system.getLocale();
+	local file = readFile("Apps/Lang/RCT-Batt.jsn")
+	local obj = json.decode(file)  
+	if(obj) then
+		trans = obj[lng] or obj[obj.default]
+	end
+end
 --------------------------------------------------------------------------------
 -- Read available sensors for user to select
 local sensors = system.getSensors()
@@ -154,19 +163,6 @@ end
 -- Draw the main form (Application inteface)
 -- Initialize with page 1
 local function initForm(subform)
-	local locale = system.getLocale()
-	local transSensor = transSensor[locale] or transSensor["en"]
-	local transSettings1 = transSettings1[locale] or transSettings1["en"]
-	local transSettings2 = transSettings2[locale] or transSettings2["en"]
-	local transSettings3 = transSettings3[locale] or transSettings3["en"]
-	local transLabel = transLabel[locale] or transLabel["en"]
-	local transLabelW = transLabelW[locale] or transLabelW["en"]
-	local transSwitch1 = transSwitch1[locale] or transSwitch1["en"]
-	local transSwitch2 = transSwitch2[locale] or transSwitch2["en"]
-	local transSwitch3 = transSwitch3[locale] or transSwitch3["en"]
-	local transCapa = transCapa[locale] or transCapa["en"]
-	local transAlm = transAlm[locale] or transAlm["en"]
-	local transAlmVal = transAlmVal[locale] or transAlmVal["en"]
 	----
 	if(subform == 1) then
 		form.setButton(1,"Batt1",HIGHLIGHTED)
@@ -177,32 +173,32 @@ local function initForm(subform)
 		form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
 		
 		form.addRow(1)
-		form.addLabel({label=transLabel,font=FONT_BOLD})
+		form.addLabel({label=trans.Label,font=FONT_BOLD})
 		
 		form.addRow(2)
-		form.addLabel({label=transSensor})
+		form.addLabel({label=trans.Sensor})
 		form.addSelectbox(sensorLalist,sens,true,sensorChanged)
 		
 		form.addRow(1)
-		form.addLabel({label=transSettings1,font=FONT_BOLD})
+		form.addLabel({label=trans.Settings1,font=FONT_BOLD})
 		
 		form.addRow(2)
-		form.addLabel({label=transLabelW,width=160})
+		form.addLabel({label=trans.LabelW,width=160})
 		form.addTextbox(lbl1,14,lbl1Changed)
 		
 		form.addRow(2)
-		form.addLabel({label=transSwitch1})
+		form.addLabel({label=trans.Switch})
 		form.addInputbox(Sw1,true,SwChanged1)
 		
 		form.addRow(2)
-		form.addLabel({label=transCapa,width=180})
+		form.addLabel({label=trans.Capa,width=180})
 		form.addIntbox(capa1,0,32767,0,0,1,capa1Changed)
 		
 		form.addRow(1)
-		form.addLabel({label=transAlm,font=FONT_BOLD})
+		form.addLabel({label=trans.Alm,font=FONT_BOLD})
 		
 		form.addRow(2)
-		form.addLabel({label=transAlmVal})
+		form.addLabel({label=trans.AlmVal})
 		form.addIntbox(alarm1,0,32767,0,0,1,alarm1Changed)
 		
 		form.addRow(1)
@@ -222,25 +218,25 @@ local function initForm(subform)
 			form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
 			
 			form.addRow(1)
-			form.addLabel({label=transSettings2,font=FONT_BOLD})
+			form.addLabel({label=trans.Settings2,font=FONT_BOLD})
 			
 			form.addRow(2)
-			form.addLabel({label=transLabelW,width=160})
+			form.addLabel({label=trans.LabelW,width=160})
 			form.addTextbox(lbl2,14,lbl2Changed)
 			
 			form.addRow(2)
-			form.addLabel({label=transSwitch2})
+			form.addLabel({label=trans.Switch})
 			form.addInputbox(Sw2,true,SwChanged2)
 			
 			form.addRow(2)
-			form.addLabel({label=transCapa,width=180})
+			form.addLabel({label=trans.Capa,width=180})
 			form.addIntbox(capa2,0,32767,0,0,1,capa2Changed)
 			
 			form.addRow(1)
-			form.addLabel({label=transAlm,font=FONT_BOLD})
+			form.addLabel({label=trans.Alm,font=FONT_BOLD})
 			
 			form.addRow(2)
-			form.addLabel({label=transAlmVal})
+			form.addLabel({label=trans.AlmVal})
 			form.addIntbox(alarm2,0,32767,0,0,1,alarm2Changed)
 			
 			form.addRow(1)
@@ -260,25 +256,25 @@ local function initForm(subform)
 				form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
 				
 				form.addRow(1)
-				form.addLabel({label=transSettings3,font=FONT_BOLD})
+				form.addLabel({label=trans.Settings3,font=FONT_BOLD})
 				
 				form.addRow(2)
-				form.addLabel({label=transLabelW,width=160})
+				form.addLabel({label=trans.LabelW,width=160})
 				form.addTextbox(lbl3,14,lbl3Changed)
 				
 				form.addRow(2)
-				form.addLabel({label=transSwitch3})
+				form.addLabel({label=trans.Switch})
 				form.addInputbox(Sw3,true,SwChanged3)
 				
 				form.addRow(2)
-				form.addLabel({label=transCapa,width=180})
+				form.addLabel({label=trans.Capa,width=180})
 				form.addIntbox(capa3,0,32767,0,0,1,capa3Changed)
 				
 				form.addRow(1)
-				form.addLabel({label=transAlm,font=FONT_BOLD})
+				form.addLabel({label=trans.Alm,font=FONT_BOLD})
 				
 				form.addRow(2)
-				form.addLabel({label=transAlmVal})
+				form.addLabel({label=trans.AlmVal})
 				form.addIntbox(alarm3,0,32767,0,0,1,alarm3Changed)
 				
 				form.addRow(1)
@@ -416,27 +412,15 @@ end
 --------------------------------------------------------------------------------Batterie 1
 -- Application initialization
 local function init()
-	local locale = system.getLocale()
-	local transControl = {en = "Battery Alarm", de = "Batterie-Warnung"}
-	local transBatt1 = {en = "Battery 1", de = "Batterie 1"}
-	local transBatt2 = {en = "Battery 2", de = "Batterie 2"}
-	local transBatt3 = {en = "Battery 3", de = "Batterie 3"}
-	local transControl = transControl[locale] or transControl["en"]
-	local transBatt1 = transBatt1[locale] or transBatt1["en"]
-	local transBatt2 = transBatt2[locale] or transBatt2["en"]
-	local transBatt3 = transBatt3[locale] or transBatt3["en"]
-	local transAppName = {en = "Battery Percentage", de = "Batterie-Prozentsatz"}
-	local transAppName = transAppName[locale] or transAppName["en"]
-	local appName = transAppName
 	telVal = "-"
 	sens = system.pLoad("sens",0)
 	sensid = system.pLoad("sensid",0)
 	senspa = system.pLoad("senspa",0)
 	id = system.pLoad("id",0)
 	param = system.pLoad("param",0)
-	lbl1 = system.pLoad("lbl1",transBatt1)
-	lbl2 = system.pLoad("lbl2",transBatt2)
-	lbl3 = system.pLoad("lbl3",transBatt3)
+	lbl1 = system.pLoad("lbl1","Batt1")
+	lbl2 = system.pLoad("lbl2","Batt2")
+	lbl3 = system.pLoad("lbl3","Batt3")
 	capa1 = system.pLoad("capa1",0)
 	capa2 = system.pLoad("capa2",0)
 	capa3 = system.pLoad("capa3",0)
@@ -450,8 +434,9 @@ local function init()
 	Sw2 = system.pLoad("Sw2")
 	Sw3 = system.pLoad("Sw3")
 	system.registerTelemetry(1,lbl1,2,printTelemetry)
-	system.registerControl (10, transControl, "B01")
-	system.registerForm(1,MENU_APPS,appName,initForm,keyPressed)
+	system.registerControl (10, trans.Control, "B01")
+	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-return {init=init, loop=loop, author="RC-Thoughts", version="1.1", name=appName} 					
+setLanguage()
+return {init=init, loop=loop, author="RC-Thoughts", version="1.2", name=trans.appName} 					
