@@ -11,6 +11,8 @@
 	any other switch, voices, alarms etc.
 	
 	Localisation-file has to be as /Apps/Lang/RCT-Batt.jsn
+	
+	French translation courtesy from Daniel Memim
 	---------------------------------------------------------
 	Battery Percentage is part of RC-Thoughts Jeti Tools.
 	---------------------------------------------------------
@@ -439,4 +441,4 @@ local function init()
 end
 --------------------------------------------------------------------------------
 setLanguage()
-return {init=init, loop=loop, author="RC-Thoughts", version="1.2", name=trans.appName} 					
+return {init=init, loop=loop, author="RC-Thoughts", version="1.3", name=trans.appName} 					
