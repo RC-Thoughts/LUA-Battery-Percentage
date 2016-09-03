@@ -441,4 +441,4 @@ local function init()
 end
 --------------------------------------------------------------------------------
 setLanguage()
-return {init=init, loop=loop, author="RC-Thoughts", version="1.4", name=trans.appName} 					
+return {init=init, loop=loop, author="RC-Thoughts", version="1.4", name=trans.appName}
