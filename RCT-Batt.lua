@@ -68,7 +68,7 @@ for i,sensor in ipairs(sensors) do
 end
 --------------------------------------------------------------------------------
 -- Draw the telemetry windows
-local function printTelemetry()
+local function printTelem()
 	if (telVal == "-") then
 		lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,"-"),10,"-",FONT_MAXI)
 		lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
@@ -102,19 +102,19 @@ local function lbl1Changed(value)
 	lbl1=value
 	system.pSave("lbl1",value)
 	-- Redraw telemetrywindow if label is changed by user
-	system.registerTelemetry(1,lbl1,2,printTelemetry)
+	system.registerTelemetry(1,lbl1,2,printTelem)
 end
 local function lbl2Changed(value)
 	lbl2=value
 	system.pSave("lbl2",value)
 	-- Redraw telemetrywindow if label is changed by user
-	system.registerTelemetry(1,lbl2,2,printTelemetry)
+	system.registerTelemetry(1,lbl2,2,printTelem)
 end
 local function lbl3Changed(value)
 	lbl3=value
 	system.pSave("lbl3",value)
 	-- Redraw telemetrywindow if label is changed by user
-	system.registerTelemetry(1,lbl3,2,printTelemetry)
+	system.registerTelemetry(1,lbl3,2,printTelem)
 end
 -----------------
 local function SwChanged1(value)
@@ -309,7 +309,7 @@ local function loop()
 	local Sw1, Sw2, Sw3 = system.getInputsVal(Sw1, Sw2, Sw3)
 	-----------------
 	if (Sw1 == nil and Sw2 == nil and Sw3 == nil) then
-		system.registerTelemetry(1,lbl1,2,printTelemetry)
+		system.registerTelemetry(1,lbl1,2,printTelem)
 		if(sensor and sensor.valid) then
 			res1 = (((capa1 - sensor.value) * 100) / capa1) 
 			if (res1 < 0) then
@@ -334,7 +334,7 @@ local function loop()
 		end
 	end
 	if (Sw1 == 1) then
-		system.registerTelemetry(1,lbl1,2,printTelemetry)
+		system.registerTelemetry(1,lbl1,2,printTelem)
 		if(sensor and sensor.valid) then
 			res1 = (((capa1 - sensor.value) * 100) / capa1) 
 			if (res1 < 0) then
@@ -360,7 +360,7 @@ local function loop()
 	end
 	-----------------
 	if (Sw2 == 1) then
-		system.registerTelemetry(1,lbl2,2,printTelemetry)
+		system.registerTelemetry(1,lbl2,2,printTelem)
 		if(sensor and sensor.valid) then
 			res2 = (((capa2 - sensor.value) * 100) / capa2) 
 			if (res2 < 0) then
@@ -386,7 +386,7 @@ local function loop()
 	end
 	-----------------
 	if (Sw3 == 1) then
-		system.registerTelemetry(1,lbl3,2,printTelemetry)
+		system.registerTelemetry(1,lbl3,2,printTelem)
 		if(sensor and sensor.valid) then
 			res3 = (((capa3 - sensor.value) * 100) / capa3) 
 			if (res3 < 0) then
@@ -435,10 +435,10 @@ local function init()
 	Sw1 = system.pLoad("Sw1")
 	Sw2 = system.pLoad("Sw2")
 	Sw3 = system.pLoad("Sw3")
-	system.registerTelemetry(1,lbl1,2,printTelemetry)
-	system.registerControl (10, trans.Control, "B01")
+	system.registerTelemetry(1,lbl1,2,printTelem)
+	system.registerControl(10, trans.battCtrl,trans.battSw)
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
 setLanguage()
-return {init=init, loop=loop, author="RC-Thoughts", version="1.3", name=trans.appName} 					
+return {init=init, loop=loop, author="RC-Thoughts", version="1.4", name=trans.appName} 					

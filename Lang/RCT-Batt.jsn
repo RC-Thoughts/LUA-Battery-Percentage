@@ -12,10 +12,11 @@
     "Capa":"Battery Capacity (mAh)",
     "Alm":"Alarm",
     "AlmVal":"Alarm Value (%)",
-	"Control":"Battery Alarm",
+	"battCtrl":"Battery Alarm",
 	"Batt1":"Battery 1",
 	"Batt2":"Battery 2",
-	"Batt3":"Battery 3"
+	"Batt3":"Battery 3",
+	"battSw":"BA1"
   },
   "de":{
     "appName":"Batterie-Prozentsatz",
@@ -29,10 +30,11 @@
     "Capa":"Batteriekapazität (mAh)",
     "Alm":"Alarm",
     "AlmVal":"Alarmwert (%)",
-	"Control":"Batterie-Warnung",
+	"battCtrl":"Batterie-Warnung",
 	"Batt1":"Batterie 1",
 	"Batt2":"Batterie 2",
-	"Batt3":"Batterie 3"
+	"Batt3":"Batterie 3",
+	"battSw":"BA1"
   },
   "fr":{
     "appName":"Batterie en Pourcentage",
@@ -46,9 +48,10 @@
     "Capa":"Capacité Batterie (mAh)",
     "Alm":"Alarme",
     "AlmVal":"Valeur d'alarme (%)",
-	"Control":"Alarme Batterie",
+	"battCtrl":"Alarme Batterie",
 	"Batt1":"Batterie 1",
 	"Batt2":"Batterie 2",
-	"Batt3":"Batterie 3"
+	"Batt3":"Batterie 3",
+	"battSw":"BA1"
   }
 }
