@@ -7,6 +7,11 @@
 	3 different size packs. If no switch is defined only battery
 	1 is used.
 	
+	Possibility to select audiofile to be announcent with or 
+	without 3-times repeat when alarm occurs.
+	
+	Possibility to use different audiofile per battery.
+	
 	Also app makes a LUA control (switch) that can be used as
 	any other switch, voices, alarms etc.
 	
@@ -24,10 +29,16 @@
 local sens, sensid, senspa, id, param, telVal, trans
 local res1, res2, res3, lbl1, lbl2, lbl3
 local alarm1, alarm2, alarm3, Sw1, Sw2, Sw3
-local alarm1Tr, alarm2Tr, alarm3Tr
+local alarm1Tr, alarm2Tr, alarm3Tr, tSet1, tSet2, tSet3
+local rpt1, rpt2, rpt3, sValid1, sValid2, sValid3
+local vF1Played, vF2Played, vF3Played
+local rptlist = {}
 local sensorLalist = {"..."}
 local sensorIdlist = {"..."}
 local sensorPalist = {"..."}
+local tSet1 = 0
+local tSet2 = 0
+local tSet3 = 0
 --------------------------------------------------------------------------------
 -- Function for translation file-reading
 local function readFile(path) 
@@ -74,7 +85,7 @@ local function printTelem()
 		lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
 		lcd.drawImage(1,51, ":graph")
 		else
-		lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,string.format("%s%%", telVal)),10,string.format("%s%%", telVal),FONT_MAXI)
+		lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,string.format("%s%%",telVal)),10,string.format("%s%%",telVal),FONT_MAXI)
 		lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
 		lcd.drawImage(1,51, ":graph")
 	end
@@ -161,15 +172,41 @@ local function alarm3Changed(value)
 	alarm3Tr = string.format("%.1f", alarm3)
 	system.pSave("alarm3Tr", alarm3Tr)
 end
+-----------------
+local function vF1Changed(value)
+	vF1=value
+	system.pSave("vF1",value)
+end
+local function vF2Changed(value)
+	vF2=value
+	system.pSave("vF2",value)
+end
+local function vF3Changed(value)
+	vF3=value
+	system.pSave("vF3",value)
+end
+-----------------
+local function rpt1Changed(value)
+	rpt1=value
+	system.pSave("rpt1",value)
+end
+local function rpt2Changed(value)
+	rpt2=value
+	system.pSave("rpt2",value)
+end
+local function rpt2Changed(value)
+	rpt3=value
+	system.pSave("rpt3",value)
+end
 --------------------------------------------------------------------------------
 -- Draw the main form (Application inteface)
 -- Initialize with page 1
 local function initForm(subform)
 	----
 	if(subform == 1) then
-		form.setButton(1,"Batt1",HIGHLIGHTED)
-		form.setButton(2,"Batt2",ENABLED)
-		form.setButton(3,"Batt3",ENABLED)
+		form.setButton(1,trans.btn1,HIGHLIGHTED)
+		form.setButton(2,trans.btn2,ENABLED)
+		form.setButton(3,trans.btn3,ENABLED)
 		
 		form.addRow(1)
 		form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
@@ -203,8 +240,16 @@ local function initForm(subform)
 		form.addLabel({label=trans.AlmVal})
 		form.addIntbox(alarm1,0,32767,0,0,1,alarm1Changed)
 		
+		form.addRow(2)
+		form.addLabel({label=trans.selAudio})
+		form.addAudioFilebox(vF1,vF1Changed)
+		
+		form.addRow(2)
+		form.addLabel({label=trans.rpt,width=200})
+		form.addSelectbox(rptlist,rpt1,false,rpt1Changed)
+		
 		form.addRow(1)
-		form.addLabel({label="Powered by RC-Thoughts.com",font=FONT_MINI, alignRight=true})	
+		form.addLabel({label="Powered by RC-Thoughts.com - "..battVersion.." ",font=FONT_MINI, alignRight=true})	
 		
 		form.setFocusedRow (1)
 		formID = 1
@@ -212,9 +257,9 @@ local function initForm(subform)
 		else
 		-- If we are on second page build the form for display
 		if(subform == 2) then
-			form.setButton(1,"Batt1",ENABLED)
-			form.setButton(2,"Batt2",HIGHLIGHTED)
-			form.setButton(3,"Batt3",ENABLED)
+			form.setButton(1,trans.btn1,ENABLED)
+			form.setButton(2,trans.btn2,HIGHLIGHTED)
+			form.setButton(3,trans.btn3,ENABLED)
 			
 			form.addRow(1)
 			form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
@@ -241,8 +286,16 @@ local function initForm(subform)
 			form.addLabel({label=trans.AlmVal})
 			form.addIntbox(alarm2,0,32767,0,0,1,alarm2Changed)
 			
+			form.addRow(2)
+			form.addLabel({label=trans.selAudio})
+			form.addAudioFilebox(vF2,vF2Changed)
+			
+			form.addRow(2)
+			form.addLabel({label=trans.rpt,width=200})
+			form.addSelectbox(rptlist,rpt2,false,rpt2Changed)
+			
 			form.addRow(1)
-			form.addLabel({label="Powered by RC-Thoughts.com",font=FONT_MINI, alignRight=true})	
+			form.addLabel({label="Powered by RC-Thoughts.com - "..battVersion.." ",font=FONT_MINI, alignRight=true})	
 			
 			form.setFocusedRow (1)
 			formID = 2
@@ -250,9 +303,9 @@ local function initForm(subform)
 			else
 			-- If we are on third page build the form for display
 			if(subform == 3) then
-				form.setButton(1,"Batt1",ENABLED)
-				form.setButton(2,"Batt2",ENABLED)
-				form.setButton(3,"Batt3",HIGHLIGHTED)
+				form.setButton(1,trans.btn1,ENABLED)
+				form.setButton(2,trans.btn2,ENABLED)
+				form.setButton(3,trans.btn3,HIGHLIGHTED)
 				
 				form.addRow(1)
 				form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
@@ -279,8 +332,16 @@ local function initForm(subform)
 				form.addLabel({label=trans.AlmVal})
 				form.addIntbox(alarm3,0,32767,0,0,1,alarm3Changed)
 				
+				form.addRow(2)
+				form.addLabel({label=trans.selAudio})
+				form.addAudioFilebox(vF3,vF3Changed)
+				
+				form.addRow(2)
+				form.addLabel({label=trans.rpt,width=200})
+				form.addSelectbox(rptlist,rpt3,false,rpt3Changed)
+				
 				form.addRow(1)
-				form.addLabel({label="Powered by RC-Thoughts.com",font=FONT_MINI, alignRight=true})	
+				form.addLabel({label="Powered by RC-Thoughts.com - "..battVersion.." ",font=FONT_MINI, alignRight=true})	
 				
 				form.setFocusedRow (1)
 				formID = 3
@@ -308,9 +369,17 @@ local function loop()
 	local sensor = system.getSensorByID(id, param)
 	local Sw1, Sw2, Sw3 = system.getInputsVal(Sw1, Sw2, Sw3)
 	-----------------
-	if (Sw1 == nil and Sw2 == nil and Sw3 == nil) then
+	if ((Sw1 == nil or Sw1 == 0 ) and (Sw2 == nil or Sw2 == 0) and (Sw3 == nil or Sw3 == 0)) then
 		system.registerTelemetry(1,lbl1,2,printTelem)
 		if(sensor and sensor.valid) then
+			if(tSet1 == 0) then
+				tStmp1 = system.getTime()
+				tCur1 = tStmp1
+				tStr1 = tStmp1 + 5
+				tSet1 = 1
+				else
+				tCur1 = system.getTime()
+			end
 			res1 = (((capa1 - sensor.value) * 100) / capa1) 
 			if (res1 < 0) then
 				res1 = 0
@@ -322,20 +391,46 @@ local function loop()
 			telVal = string.format("%.1f", res1)
 			if(alarm1Tr == 0) then
 				system.setControl(10,0,0,1)
+				vF1played = 0
+				tStr1 = 0
 				else
-				if (telVal <= alarm1Tr) then
-					system.setControl(10,1,0,1)
+				if(res1 <= alarm1) then
+					if(tStr1 <= tCur1 and tSet1 == 1) then
+						system.setControl(10,1,0,1)
+						if(vF1played == 0 or vF1played == nil and vF1 ~= "...") then
+							if (rpt1 == 2) then
+								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
+								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
+								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
+								vF1played = 1
+								else
+								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
+								vF1played = 1
+							end
+						end
+					end
 					else
 					system.setControl(10,0,0,1)
+					vF1played = 0
 				end
 			end
 			else
 			telVal = "-"
+			vF1played = 0
+			tSet1 = 0
 		end
 	end
 	if (Sw1 == 1) then
 		system.registerTelemetry(1,lbl1,2,printTelem)
 		if(sensor and sensor.valid) then
+			if(tSet1 == 0) then
+				tStmp1 = system.getTime()
+				tCur1 = tStmp1
+				tStr1 = tStmp1 + 5
+				tSet1 = 1
+				else
+				tCur1 = system.getTime()
+			end
 			res1 = (((capa1 - sensor.value) * 100) / capa1) 
 			if (res1 < 0) then
 				res1 = 0
@@ -347,21 +442,47 @@ local function loop()
 			telVal = string.format("%.1f", res1)
 			if(alarm1Tr == 0) then
 				system.setControl(10,0,0,1)
+				vF1played = 0
+				tStr1 = 0
 				else
-				if (telVal <= alarm1Tr) then
-					system.setControl(10,1,0,1)
+				if(res1 <= alarm1) then
+					if(tStr1 <= tCur1 and tSet1 == 1) then
+						system.setControl(10,1,0,1)
+						if(vF1played == 0 or vF1played == nil and vF1 ~= "...") then
+							if (rpt1 == 2) then
+								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
+								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
+								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
+								vF1played = 1
+								else
+								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
+								vF1played = 1
+							end
+						end
+					end
 					else
 					system.setControl(10,0,0,1)
+					vF1played = 0
 				end
 			end
 			else
 			telVal = "-"
+			vF1played = 0
+			tSet1 = 0
 		end
 	end
 	-----------------
 	if (Sw2 == 1) then
 		system.registerTelemetry(1,lbl2,2,printTelem)
 		if(sensor and sensor.valid) then
+			if(tSet2 == 0) then
+				tStmp2 = system.getTime()
+				tCur2 = tStmp2
+				tStr2 = tStmp2 + 5
+				tSet2 = 1
+				else
+				tCur2 = system.getTime()
+			end
 			res2 = (((capa2 - sensor.value) * 100) / capa2) 
 			if (res2 < 0) then
 				res2 = 0
@@ -373,21 +494,47 @@ local function loop()
 			telVal = string.format("%.1f", res2)
 			if(alarm2Tr == 0) then
 				system.setControl(10,0,0,1)
+				vF2played = 0
+				tStr2 = 0
 				else
-				if (telVal <= alarm2Tr) then
-					system.setControl(10,1,0,1)
+				if(res2 <= alarm2) then
+					if(tStr2 <= tCur2 and tSet2 == 1) then
+						system.setControl(10,1,0,1)
+						if(vF2played == 0 or vF2played == nil and vF2 ~= "...") then
+							if (rpt2 == 2) then
+								system.playFile(vF2,AUDIO_AUDIO_QUEUE)
+								system.playFile(vF2,AUDIO_AUDIO_QUEUE)
+								system.playFile(vF2,AUDIO_AUDIO_QUEUE)
+								vF2played = 1
+								else
+								system.playFile(vF2,AUDIO_AUDIO_QUEUE)
+								vF2played = 1
+							end
+						end
+					end
 					else
 					system.setControl(10,0,0,1)
+					vF2played = 0
 				end
 			end
 			else
 			telVal = "-"
+			vF2played = 0
+			tSet2 = 0
 		end
 	end
 	-----------------
 	if (Sw3 == 1) then
 		system.registerTelemetry(1,lbl3,2,printTelem)
 		if(sensor and sensor.valid) then
+			if(tSet3 == 0) then
+				tStmp3 = system.getTime()
+				tCur3 = tStmp3
+				tStr3 = tStmp3 + 5
+				tSet3 = 1
+				else
+				tCur3 = system.getTime()
+			end
 			res3 = (((capa3 - sensor.value) * 100) / capa3) 
 			if (res3 < 0) then
 				res3 = 0
@@ -399,19 +546,37 @@ local function loop()
 			telVal = string.format("%.1f", res3)
 			if(alarm3Tr == 0) then
 				system.setControl(10,0,0,1)
+				vF3played = 0
+				tStr3 = 0
 				else
-				if (telVal <= alarm3Tr) then
-					system.setControl(10,1,0,1)
+				if(res3 <= alarm3) then
+					if(tStr3 <= tCur3 and tSet3 == 1) then
+						system.setControl(10,1,0,1)
+						if(vF3played == 0 or vF3played == nil and vF3 ~= "...") then
+							if (rpt3 == 2) then
+								system.playFile(vF3,AUDIO_AUDIO_QUEUE)
+								system.playFile(vF3,AUDIO_AUDIO_QUEUE)
+								system.playFile(vF3,AUDIO_AUDIO_QUEUE)
+								vF3played = 1
+								else
+								system.playFile(vF3,AUDIO_AUDIO_QUEUE)
+								vF3played = 1
+							end
+						end
+					end
 					else
 					system.setControl(10,0,0,1)
+					vF3played = 0
 				end
 			end
 			else
 			telVal = "-"
+			vF3played = 0
+			tSet3 = 0
 		end
 	end
 end
---------------------------------------------------------------------------------Batterie 1
+	--------------------------------------------------------------------------------Batterie 1
 -- Application initialization
 local function init()
 	telVal = "-"
@@ -420,9 +585,9 @@ local function init()
 	senspa = system.pLoad("senspa",0)
 	id = system.pLoad("id",0)
 	param = system.pLoad("param",0)
-	lbl1 = system.pLoad("lbl1","Batt1")
-	lbl2 = system.pLoad("lbl2","Batt2")
-	lbl3 = system.pLoad("lbl3","Batt3")
+	lbl1 = system.pLoad("lbl1",trans.Batt1)
+	lbl2 = system.pLoad("lbl2",trans.Batt2)
+	lbl3 = system.pLoad("lbl3",trans.Batt3)
 	capa1 = system.pLoad("capa1",0)
 	capa2 = system.pLoad("capa2",0)
 	capa3 = system.pLoad("capa3",0)
@@ -435,10 +600,19 @@ local function init()
 	Sw1 = system.pLoad("Sw1")
 	Sw2 = system.pLoad("Sw2")
 	Sw3 = system.pLoad("Sw3")
+	vF1 = system.pLoad("vF1","...")
+	vF2 = system.pLoad("vF2","...")
+	vF3 = system.pLoad("vF3","...")
+	rpt1 = system.pLoad("rpt1",1)
+	rpt2 = system.pLoad("rpt2",1)
+	rpt3 = system.pLoad("rpt3",1)
+	table.insert(rptlist,trans.neg)
+	table.insert(rptlist,trans.pos)
 	system.registerTelemetry(1,lbl1,2,printTelem)
-	system.registerControl(10, trans.battCtrl,trans.battSw)
+	system.registerControl(10,trans.battCtrl,trans.battSw)
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
+battVersion = "v.1.4"
 setLanguage()
-return {init=init, loop=loop, author="RC-Thoughts", version="1.4", name=trans.appName}
+return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName} 					
