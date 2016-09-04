@@ -249,7 +249,7 @@ local function initForm(subform)
 		form.addSelectbox(rptlist,rpt1,false,rpt1Changed)
 		
 		form.addRow(1)
-		form.addLabel({label="Powered by RC-Thoughts.com - "..battVersion.." ",font=FONT_MINI, alignRight=true})	
+		form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})	
 		
 		form.setFocusedRow (1)
 		formID = 1
@@ -295,7 +295,7 @@ local function initForm(subform)
 			form.addSelectbox(rptlist,rpt2,false,rpt2Changed)
 			
 			form.addRow(1)
-			form.addLabel({label="Powered by RC-Thoughts.com - "..battVersion.." ",font=FONT_MINI, alignRight=true})	
+			form.addLabel({label="Powered by RC-Thoughts.com - v,"..battVersion.." ",font=FONT_MINI, alignRight=true})	
 			
 			form.setFocusedRow (1)
 			formID = 2
@@ -341,7 +341,7 @@ local function initForm(subform)
 				form.addSelectbox(rptlist,rpt3,false,rpt3Changed)
 				
 				form.addRow(1)
-				form.addLabel({label="Powered by RC-Thoughts.com - "..battVersion.." ",font=FONT_MINI, alignRight=true})	
+				form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})	
 				
 				form.setFocusedRow (1)
 				formID = 3
@@ -613,6 +613,6 @@ local function init()
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-battVersion = "v.1.4"
+battVersion = "1.4"
 setLanguage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName} 					
