@@ -15,6 +15,9 @@
 	Also app makes a LUA control (switch) that can be used as
 	any other switch, voices, alarms etc.
 	
+	Telemetry-screne on main-screen with or without Battery-
+	symbol. Symbol is realtime - Charge gets lower on use.
+	
 	Localisation-file has to be as /Apps/Lang/RCT-Batt.jsn
 	
 	French translation courtesy from Daniel Memim
@@ -30,9 +33,10 @@ local sens, sensid, senspa, id, param, telVal, trans
 local res1, res2, res3, lbl1, lbl2, lbl3
 local alarm1, alarm2, alarm3, Sw1, Sw2, Sw3
 local alarm1Tr, alarm2Tr, alarm3Tr, tSet1, tSet2, tSet3
-local rpt1, rpt2, rpt3, sValid1, sValid2, sValid3
-local vF1Played, vF2Played, vF3Played
-local rptlist = {}
+local rptSnd, sValid1, sValid2, sValid3
+local vF1Played, vF2Played, vF3Played, battSym
+local rptSndlist = {}
+local battSymlist = {}
 local sensorLalist = {"..."}
 local sensorIdlist = {"..."}
 local sensorPalist = {"..."}
@@ -80,14 +84,42 @@ end
 --------------------------------------------------------------------------------
 -- Draw the telemetry windows
 local function printTelem()
-	if (telVal == "-") then
-		lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,"-"),10,"-",FONT_MAXI)
-		lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
-		lcd.drawImage(1,51, ":graph")
+	if (battSym == 2) then
+		local txtr,txtg,txtb
+		local bgr,bgg,bgb = lcd.getBgColor()
+		if (bgr+bgg+bgb)/3 >128 then 
+			txtr,txtg,txtb = 0,0,0
+			else
+			txtr,txtg,txtb = 255,255,255
+		end	
+		if (telVal == "-") then
+			lcd.drawRectangle(5,9,26,55)                                          
+			lcd.drawFilledRectangle(12,6,12,4)
+			lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,"-"),10,"-",FONT_MAXI)
+			lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
+			--lcd.drawImage(1,51, ":graph")
+			else
+			lcd.drawRectangle(5,9,26,55)                                          
+			lcd.drawFilledRectangle(12,6,12,4)
+			chgY = (64-(telVal*0.54))
+			chgH = ((telVal*0.54))
+			lcd.setColor(0,196,0)
+			lcd.drawFilledRectangle(6,chgY,24,chgH)
+			lcd.setColor(txtr,txtg,txtb)
+			lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,string.format("%s%%",telVal)),10,string.format("%s%%",telVal),FONT_MAXI)
+			lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),53,"RC-Thoughts.com",FONT_MINI)
+			--lcd.drawImage(1,51, ":graph")
+		end
 		else
-		lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,string.format("%s%%",telVal)),10,string.format("%s%%",telVal),FONT_MAXI)
-		lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
-		lcd.drawImage(1,51, ":graph")
+		if (telVal == "-") then
+			lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,"-"),10,"-",FONT_MAXI)
+			lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
+			lcd.drawImage(1,51, ":graph")
+			else
+			lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,string.format("%s%%",telVal)),10,string.format("%s%%",telVal),FONT_MAXI)
+			lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),53,"RC-Thoughts.com",FONT_MINI)
+			lcd.drawImage(1,51, ":graph")
+		end
 	end
 end
 --------------------------------------------------------------------------------
@@ -107,6 +139,16 @@ local function sensorChanged(value)
 	end
 	system.pSave("id", id)
 	system.pSave("param", param)
+end
+local function battSymChanged(value)
+	battSym=value
+	system.pSave("battSym",value)
+	-- Redraw telemetrywindow if label is changed by user
+	system.registerTelemetry(1,lbl1,2,printTelem)
+end
+local function rptSndChanged(value)
+	rptSnd=value
+	system.pSave("rptSnd",value)
 end
 -----------------
 local function lbl1Changed(value)
@@ -185,28 +227,16 @@ local function vF3Changed(value)
 	vF3=value
 	system.pSave("vF3",value)
 end
------------------
-local function rpt1Changed(value)
-	rpt1=value
-	system.pSave("rpt1",value)
-end
-local function rpt2Changed(value)
-	rpt2=value
-	system.pSave("rpt2",value)
-end
-local function rpt2Changed(value)
-	rpt3=value
-	system.pSave("rpt3",value)
-end
 --------------------------------------------------------------------------------
 -- Draw the main form (Application inteface)
 -- Initialize with page 1
 local function initForm(subform)
-	----
+	-- If we are on first page build the form for display
 	if(subform == 1) then
 		form.setButton(1,trans.btn1,HIGHLIGHTED)
 		form.setButton(2,trans.btn2,ENABLED)
 		form.setButton(3,trans.btn3,ENABLED)
+		form.setButton(4,trans.btn4,ENABLED)
 		
 		form.addRow(1)
 		form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
@@ -219,132 +249,148 @@ local function initForm(subform)
 		form.addSelectbox(sensorLalist,sens,true,sensorChanged)
 		
 		form.addRow(1)
-		form.addLabel({label=trans.Settings1,font=FONT_BOLD})
+		form.addLabel({label=trans.symSettings,font=FONT_BOLD})
 		
 		form.addRow(2)
-		form.addLabel({label=trans.LabelW,width=160})
-		form.addTextbox(lbl1,14,lbl1Changed)
-		
-		form.addRow(2)
-		form.addLabel({label=trans.Switch})
-		form.addInputbox(Sw1,true,SwChanged1)
-		
-		form.addRow(2)
-		form.addLabel({label=trans.Capa,width=180})
-		form.addIntbox(capa1,0,32767,0,0,1,capa1Changed)
-		
-		form.addRow(1)
-		form.addLabel({label=trans.Alm,font=FONT_BOLD})
-		
-		form.addRow(2)
-		form.addLabel({label=trans.AlmVal})
-		form.addIntbox(alarm1,0,32767,0,0,1,alarm1Changed)
-		
-		form.addRow(2)
-		form.addLabel({label=trans.selAudio})
-		form.addAudioFilebox(vF1,vF1Changed)
+		form.addLabel({label=trans.battSym,width=230})
+		form.addSelectbox(battSymlist,battSym,false,battSymChanged)
 		
 		form.addRow(2)
 		form.addLabel({label=trans.rpt,width=200})
-		form.addSelectbox(rptlist,rpt1,false,rpt1Changed)
+		form.addSelectbox(rptSndlist,rptSnd,false,rptSndChanged)
 		
 		form.addRow(1)
-		form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})	
+		form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})
 		
 		form.setFocusedRow (1)
 		formID = 1
-		
 		else
 		-- If we are on second page build the form for display
 		if(subform == 2) then
 			form.setButton(1,trans.btn1,ENABLED)
 			form.setButton(2,trans.btn2,HIGHLIGHTED)
 			form.setButton(3,trans.btn3,ENABLED)
+			form.setButton(4,trans.btn4,ENABLED)
 			
 			form.addRow(1)
 			form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
 			
 			form.addRow(1)
-			form.addLabel({label=trans.Settings2,font=FONT_BOLD})
+			form.addLabel({label=trans.Settings1,font=FONT_BOLD})
 			
 			form.addRow(2)
 			form.addLabel({label=trans.LabelW,width=160})
-			form.addTextbox(lbl2,14,lbl2Changed)
+			form.addTextbox(lbl1,14,lbl1Changed)
 			
 			form.addRow(2)
 			form.addLabel({label=trans.Switch})
-			form.addInputbox(Sw2,true,SwChanged2)
+			form.addInputbox(Sw1,true,SwChanged1)
 			
 			form.addRow(2)
 			form.addLabel({label=trans.Capa,width=180})
-			form.addIntbox(capa2,0,32767,0,0,1,capa2Changed)
+			form.addIntbox(capa1,0,32767,0,0,1,capa1Changed)
 			
 			form.addRow(1)
 			form.addLabel({label=trans.Alm,font=FONT_BOLD})
 			
 			form.addRow(2)
 			form.addLabel({label=trans.AlmVal})
-			form.addIntbox(alarm2,0,32767,0,0,1,alarm2Changed)
+			form.addIntbox(alarm1,0,32767,0,0,1,alarm1Changed)
 			
 			form.addRow(2)
 			form.addLabel({label=trans.selAudio})
-			form.addAudioFilebox(vF2,vF2Changed)
-			
-			form.addRow(2)
-			form.addLabel({label=trans.rpt,width=200})
-			form.addSelectbox(rptlist,rpt2,false,rpt2Changed)
+			form.addAudioFilebox(vF1,vF1Changed)
 			
 			form.addRow(1)
-			form.addLabel({label="Powered by RC-Thoughts.com - v,"..battVersion.." ",font=FONT_MINI, alignRight=true})	
+			form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})	
 			
 			form.setFocusedRow (1)
 			formID = 2
-			
 			else
 			-- If we are on third page build the form for display
 			if(subform == 3) then
 				form.setButton(1,trans.btn1,ENABLED)
 				form.setButton(2,trans.btn2,ENABLED)
 				form.setButton(3,trans.btn3,HIGHLIGHTED)
+				form.setButton(4,trans.btn4,ENABLED)
 				
 				form.addRow(1)
 				form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
 				
 				form.addRow(1)
-				form.addLabel({label=trans.Settings3,font=FONT_BOLD})
+				form.addLabel({label=trans.Settings2,font=FONT_BOLD})
 				
 				form.addRow(2)
 				form.addLabel({label=trans.LabelW,width=160})
-				form.addTextbox(lbl3,14,lbl3Changed)
+				form.addTextbox(lbl2,14,lbl2Changed)
 				
 				form.addRow(2)
 				form.addLabel({label=trans.Switch})
-				form.addInputbox(Sw3,true,SwChanged3)
+				form.addInputbox(Sw2,true,SwChanged2)
 				
 				form.addRow(2)
 				form.addLabel({label=trans.Capa,width=180})
-				form.addIntbox(capa3,0,32767,0,0,1,capa3Changed)
+				form.addIntbox(capa2,0,32767,0,0,1,capa2Changed)
 				
 				form.addRow(1)
 				form.addLabel({label=trans.Alm,font=FONT_BOLD})
 				
 				form.addRow(2)
 				form.addLabel({label=trans.AlmVal})
-				form.addIntbox(alarm3,0,32767,0,0,1,alarm3Changed)
+				form.addIntbox(alarm2,0,32767,0,0,1,alarm2Changed)
 				
 				form.addRow(2)
 				form.addLabel({label=trans.selAudio})
-				form.addAudioFilebox(vF3,vF3Changed)
-				
-				form.addRow(2)
-				form.addLabel({label=trans.rpt,width=200})
-				form.addSelectbox(rptlist,rpt3,false,rpt3Changed)
+				form.addAudioFilebox(vF2,vF2Changed)
 				
 				form.addRow(1)
 				form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})	
 				
 				form.setFocusedRow (1)
 				formID = 3
+				else
+				-- If we are on fourth page build the form for display
+				if(subform == 4) then
+					form.setButton(1,trans.btn1,ENABLED)
+					form.setButton(2,trans.btn2,ENABLED)
+					form.setButton(3,trans.btn3,ENABLED)
+					form.setButton(4,trans.btn4,HIGHLIGHTED)
+					
+					form.addRow(1)
+					form.addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
+					
+					form.addRow(1)
+					form.addLabel({label=trans.Settings3,font=FONT_BOLD})
+					
+					form.addRow(2)
+					form.addLabel({label=trans.LabelW,width=160})
+					form.addTextbox(lbl3,14,lbl3Changed)
+					
+					form.addRow(2)
+					form.addLabel({label=trans.Switch})
+					form.addInputbox(Sw3,true,SwChanged3)
+					
+					form.addRow(2)
+					form.addLabel({label=trans.Capa,width=180})
+					form.addIntbox(capa3,0,32767,0,0,1,capa3Changed)
+					
+					form.addRow(1)
+					form.addLabel({label=trans.Alm,font=FONT_BOLD})
+					
+					form.addRow(2)
+					form.addLabel({label=trans.AlmVal})
+					form.addIntbox(alarm3,0,32767,0,0,1,alarm3Changed)
+					
+					form.addRow(2)
+					form.addLabel({label=trans.selAudio})
+					form.addAudioFilebox(vF3,vF3Changed)
+					
+					form.addRow(1)
+					form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})	
+					
+					form.setFocusedRow (1)
+					formID = 4
+				end
 			end
 		end
 	end
@@ -360,6 +406,9 @@ local function keyPressed(key)
 	end
 	if(key==KEY_3) then
 		form.reinit(3)
+	end
+	if(key==KEY_4) then
+		form.reinit(4)
 	end
 end
 ---------------------------------------------------------------------------------
@@ -390,15 +439,15 @@ local function loop()
 			end
 			telVal = string.format("%.1f", res1)
 			if(alarm1Tr == 0) then
-				system.setControl(10,0,0,1)
+				system.setControl(10,0,0,0)
 				vF1played = 0
 				tStr1 = 0
 				else
 				if(res1 <= alarm1) then
 					if(tStr1 <= tCur1 and tSet1 == 1) then
-						system.setControl(10,1,0,1)
+						system.setControl(10,1,0,0)
 						if(vF1played == 0 or vF1played == nil and vF1 ~= "...") then
-							if (rpt1 == 2) then
+							if (rptSnd == 2) then
 								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
 								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
 								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
@@ -410,7 +459,7 @@ local function loop()
 						end
 					end
 					else
-					system.setControl(10,0,0,1)
+					system.setControl(10,0,0,0)
 					vF1played = 0
 				end
 			end
@@ -441,15 +490,15 @@ local function loop()
 			end
 			telVal = string.format("%.1f", res1)
 			if(alarm1Tr == 0) then
-				system.setControl(10,0,0,1)
+				system.setControl(10,0,0,0)
 				vF1played = 0
 				tStr1 = 0
 				else
 				if(res1 <= alarm1) then
 					if(tStr1 <= tCur1 and tSet1 == 1) then
-						system.setControl(10,1,0,1)
+						system.setControl(10,1,0,0)
 						if(vF1played == 0 or vF1played == nil and vF1 ~= "...") then
-							if (rpt1 == 2) then
+							if (rptSnd == 2) then
 								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
 								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
 								system.playFile(vF1,AUDIO_AUDIO_QUEUE)
@@ -461,7 +510,7 @@ local function loop()
 						end
 					end
 					else
-					system.setControl(10,0,0,1)
+					system.setControl(10,0,0,0)
 					vF1played = 0
 				end
 			end
@@ -493,15 +542,15 @@ local function loop()
 			end
 			telVal = string.format("%.1f", res2)
 			if(alarm2Tr == 0) then
-				system.setControl(10,0,0,1)
+				system.setControl(10,0,0,0)
 				vF2played = 0
 				tStr2 = 0
 				else
 				if(res2 <= alarm2) then
 					if(tStr2 <= tCur2 and tSet2 == 1) then
-						system.setControl(10,1,0,1)
+						system.setControl(10,1,0,0)
 						if(vF2played == 0 or vF2played == nil and vF2 ~= "...") then
-							if (rpt2 == 2) then
+							if (rptSnd == 2) then
 								system.playFile(vF2,AUDIO_AUDIO_QUEUE)
 								system.playFile(vF2,AUDIO_AUDIO_QUEUE)
 								system.playFile(vF2,AUDIO_AUDIO_QUEUE)
@@ -513,7 +562,7 @@ local function loop()
 						end
 					end
 					else
-					system.setControl(10,0,0,1)
+					system.setControl(10,0,0,0)
 					vF2played = 0
 				end
 			end
@@ -545,15 +594,15 @@ local function loop()
 			end
 			telVal = string.format("%.1f", res3)
 			if(alarm3Tr == 0) then
-				system.setControl(10,0,0,1)
+				system.setControl(10,0,0,0)
 				vF3played = 0
 				tStr3 = 0
 				else
 				if(res3 <= alarm3) then
 					if(tStr3 <= tCur3 and tSet3 == 1) then
-						system.setControl(10,1,0,1)
+						system.setControl(10,1,0,0)
 						if(vF3played == 0 or vF3played == nil and vF3 ~= "...") then
-							if (rpt3 == 2) then
+							if (rptSnd == 2) then
 								system.playFile(vF3,AUDIO_AUDIO_QUEUE)
 								system.playFile(vF3,AUDIO_AUDIO_QUEUE)
 								system.playFile(vF3,AUDIO_AUDIO_QUEUE)
@@ -565,7 +614,7 @@ local function loop()
 						end
 					end
 					else
-					system.setControl(10,0,0,1)
+					system.setControl(10,0,0,0)
 					vF3played = 0
 				end
 			end
@@ -576,7 +625,7 @@ local function loop()
 		end
 	end
 end
-	--------------------------------------------------------------------------------Batterie 1
+--------------------------------------------------------------------------------Batterie 1
 -- Application initialization
 local function init()
 	telVal = "-"
@@ -585,6 +634,7 @@ local function init()
 	senspa = system.pLoad("senspa",0)
 	id = system.pLoad("id",0)
 	param = system.pLoad("param",0)
+	battSym = system.pLoad("battSym",2)
 	lbl1 = system.pLoad("lbl1",trans.Batt1)
 	lbl2 = system.pLoad("lbl2",trans.Batt2)
 	lbl3 = system.pLoad("lbl3",trans.Batt3)
@@ -603,16 +653,16 @@ local function init()
 	vF1 = system.pLoad("vF1","...")
 	vF2 = system.pLoad("vF2","...")
 	vF3 = system.pLoad("vF3","...")
-	rpt1 = system.pLoad("rpt1",1)
-	rpt2 = system.pLoad("rpt2",1)
-	rpt3 = system.pLoad("rpt3",1)
-	table.insert(rptlist,trans.neg)
-	table.insert(rptlist,trans.pos)
+	rptSnd = system.pLoad("rptSnd",1)
+	table.insert(rptSndlist,trans.neg)
+	table.insert(rptSndlist,trans.pos)
+	table.insert(battSymlist,trans.neg)
+	table.insert(battSymlist,trans.pos)
 	system.registerTelemetry(1,lbl1,2,printTelem)
 	system.registerControl(10,trans.battCtrl,trans.battSw)
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-battVersion = "1.4"
+battVersion = "1.6"
 setLanguage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName} 					
