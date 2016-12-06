@@ -663,6 +663,6 @@ local function init()
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-battVersion = "1.6"
+battVersion = "1.7"
 setLanguage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName} 					
