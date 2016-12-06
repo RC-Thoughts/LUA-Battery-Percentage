@@ -83,5 +83,33 @@
 	"battSw":"BA1",
 	"neg":"No",
 	"pos":"Oui"
+  },
+  "es":{
+    "appName":"Batería en porcentaje",
+    "Sensor":"Selec. un sensor",
+    "Settings1":"Configuración batería 1",
+	"Settings2":"Configuración batería 2",
+	"Settings3":"Configuración batería 3",
+	"battSym":"Símbolo de batería en pantalla?",
+	"symSettings":"Pantalla de telemetría",
+    "Label":"Sensor",
+    "LabelW":"Título de pantalla",
+    "Switch":"Interruptor Batería",
+    "Capa":"Capacidad batería (mAh)",
+    "Alm":"Alarma",
+    "AlmVal":"Valor de alarma (%)",
+	"selAudio":"Archivo de Audio",
+	"rpt":"Repetir voz (3x)",
+	"battCtrl":"Alarma Battería",
+	"Batt1":"Batería 1",
+	"Batt2":"Batería 2",
+	"Batt3":"Batería 3",
+	"btn1":":tools",
+	"btn2":"Bat1",
+	"btn3":"Bat2",
+	"btn4":"Bat3",
+	"battSw":"BA1",
+	"neg":"No",
+	"pos":"Sí"
   }
 }
