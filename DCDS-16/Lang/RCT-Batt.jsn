@@ -12,7 +12,7 @@
     "Alm":"Alarm",
     "AlmVal":"Alarm Value (%)",
 	"battCtrl":"Battery Alarm",
-	"battSw":"BA1"
+	"battSw":"BA"
   },
   "de":{
     "appName":"Batterie-Prozentsatz",
@@ -26,7 +26,7 @@
     "Alm":"Alarm",
     "AlmVal":"Alarmwert (%)",
 	"battCtrl":"Batterie-Warnung",
-	"battSw":"BA1"
+	"battSw":"BA"
   },
   "fr":{
     "appName":"Batterie en Pourcentage",
@@ -40,7 +40,7 @@
     "Alm":"Alarme",
     "AlmVal":"Valeur d'alarme (%)",
 	"battCtrl":"Alarme Batterie",
-	"battSw":"BA1"
+	"battSw":"BA"
   },
   "es":{
     "appName":"Batería en porcentaje",
@@ -54,6 +54,6 @@
     "Alm":"Alarma",
     "AlmVal":"Valor de alarma (%)",
 	"battCtrl":"Alarma Battería",
-	"battSw":"BA1"
+	"battSw":"BA"
   }
 }

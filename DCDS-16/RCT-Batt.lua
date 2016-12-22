@@ -40,22 +40,22 @@ local function readFile(path)
 	if(f) then
 		while 1 do 
 			local buf=io.read(f,512)
-			if(buf ~= "")then 
+			if(buf ~= "")then
 				lines[#lines+1] = buf
 				else
-				break   
+				break
 			end   
 		end 
 		io.close(f)
-		return table.concat(lines,"") 
+		return table.concat(lines,"")
 	end
 end 
 --------------------------------------------------------------------------------
 -- Read translations
-local function setLanguage()	
+local function setLanguage()
 	local lng=system.getLocale();
 	local file = readFile("Apps/Lang/RCT-Batt.jsn")
-	local obj = json.decode(file)  
+	local obj = json.decode(file)
 	if(obj) then
 		trans = obj[lng] or obj[obj.default]
 	end
@@ -74,12 +74,12 @@ end
 -- Draw the telemetry windows
 local function printTelem()
 	if (telVal == "-") then
-		lcd.drawRectangle(5,9,26,55)                                          
+		lcd.drawRectangle(5,9,26,55)
 		lcd.drawFilledRectangle(12,6,12,4)
 		lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,"-%"),10,"-%",FONT_MAXI)
 		lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
 		else
-		lcd.drawRectangle(5,9,26,55)                                          
+		lcd.drawRectangle(5,9,26,55)
 		lcd.drawFilledRectangle(12,6,12,4)
 		chgY = (65-(telVal*0.54))
 		chgH = ((telVal*0.54)-1)
@@ -242,7 +242,7 @@ local function loop()
 				end
 			end
 		end
-		-- Format
+		
 		if (res and res < 0) then
 			res = 0
 			elseif (res and res > 100) then
@@ -279,4 +279,4 @@ end
 --------------------------------------------------------------------------------
 battVersion = "1.8"
 setLanguage()
-return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName} 					
+return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName}
