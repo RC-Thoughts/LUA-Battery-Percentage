@@ -29,7 +29,7 @@
 --]]
 --------------------------------------------------------------------------------
 -- Locals for the application
-local sens, sensid, senspa, id, param, telVal, trans
+local sens, sensid, senspa, telVal, trans
 local res1, res2, res3, lbl1, lbl2, lbl3
 local alarm1, alarm2, alarm3, Sw1, Sw2, Sw3
 local alarm1Tr, alarm2Tr, alarm3Tr, tSet1, tSet2, tSet3
@@ -95,7 +95,7 @@ local function printTelem()
 		if (telVal == "-") then
 			lcd.drawRectangle(5,9,26,55)                                          
 			lcd.drawFilledRectangle(12,6,12,4)
-			lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,"-"),10,"-",FONT_MAXI)
+			lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,"-%"),10,"-%",FONT_MAXI)
 			lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
 			--lcd.drawImage(1,51, ":graph")
 			else
@@ -126,19 +126,15 @@ end
 -- Store settings when changed by user
 local function sensorChanged(value)
 	sens=value
-	sensid=value
-	senspa=value
 	system.pSave("sens",value)
-	system.pSave("sensid",value)
-	system.pSave("senspa",value)
-	id = string.format("%s", sensorIdlist[sensid])
-	param = string.format("%s", sensorPalist[senspa])
-	if (id == "...") then
-		id = 0
-		param = 0
+	sensid = string.format("%s", sensorIdlist[sens])
+	senspa = string.format("%s", sensorPalist[sens])
+	if (sensid == "...") then
+		sensid = 0
+		senspa = 0
 	end
-	system.pSave("id", id)
-	system.pSave("param", param)
+	system.pSave("sensid",sensid)
+	system.pSave("senspa",senspa)
 end
 local function battSymChanged(value)
 	battSym=value
@@ -415,7 +411,7 @@ end
 -- Runtime functions, read sensor, convert to percentage, keep percentage between 0 and 100 at all times
 -- Display on main screen the selected battery and values, take care of correct alarm-value
 local function loop()
-	local sensor = system.getSensorByID(id, param)
+	local sensor = system.getSensorByID(sensid, senspa)
 	local Sw1, Sw2, Sw3 = system.getInputsVal(Sw1, Sw2, Sw3)
 	-----------------
 	if ((Sw1 == nil or Sw1 == 0 ) and (Sw2 == nil or Sw2 == 0) and (Sw3 == nil or Sw3 == 0)) then
@@ -632,8 +628,6 @@ local function init()
 	sens = system.pLoad("sens",0)
 	sensid = system.pLoad("sensid",0)
 	senspa = system.pLoad("senspa",0)
-	id = system.pLoad("id",0)
-	param = system.pLoad("param",0)
 	battSym = system.pLoad("battSym",2)
 	lbl1 = system.pLoad("lbl1",trans.Batt1)
 	lbl2 = system.pLoad("lbl2",trans.Batt2)
@@ -663,6 +657,6 @@ local function init()
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-battVersion = "1.7"
+battVersion = "1.8"
 setLanguage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName} 					

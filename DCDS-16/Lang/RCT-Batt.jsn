@@ -1,0 +1,59 @@
+{
+  "default":"en",
+  "en":{
+    "appName":"Battery Percentage",
+    "Sensor":"Select sensor",
+    "Settings1":"Battery 1 Settings",
+	"Settings2":"Battery 2 Settings",
+    "Label":"Sensor",
+	"wLabel":"Battery Percentage",
+    "Switch":"Battery Switch",
+    "Capa":"Battery Capacity (mAh)",
+    "Alm":"Alarm",
+    "AlmVal":"Alarm Value (%)",
+	"battCtrl":"Battery Alarm",
+	"battSw":"BA1"
+  },
+  "de":{
+    "appName":"Batterie-Prozentsatz",
+    "Sensor":"Wählen Sensor",
+    "Settings1":"Batterie 1 Einstellungen",
+	"Settings2":"Batterie 2 Einstellungen",
+    "Label":"Sensor",
+    "LabelW":"Batterie-Prozentsatz",
+    "Switch":"Batterie Schalter",
+    "Capa":"Batteriekapazität (mAh)",
+    "Alm":"Alarm",
+    "AlmVal":"Alarmwert (%)",
+	"battCtrl":"Batterie-Warnung",
+	"battSw":"BA1"
+  },
+  "fr":{
+    "appName":"Batterie en Pourcentage",
+    "Sensor":"Sélect. un Capteur",
+    "Settings1":"Réglage Batterie 1",
+	"Settings2":"Réglage Batterie 2",
+    "Label":"Capteur",
+    "LabelW":"Batterie en Pourcentage",
+    "Switch":"Inter Batterie",
+    "Capa":"Capacité Batterie (mAh)",
+    "Alm":"Alarme",
+    "AlmVal":"Valeur d'alarme (%)",
+	"battCtrl":"Alarme Batterie",
+	"battSw":"BA1"
+  },
+  "es":{
+    "appName":"Batería en porcentaje",
+    "Sensor":"Selec. un sensor",
+    "Settings1":"Configuración batería 1",
+	"Settings2":"Configuración batería 2",
+    "Label":"Sensor",
+    "LabelW":"Batería en porcentaje",
+    "Switch":"Interruptor Batería",
+    "Capa":"Capacidad batería (mAh)",
+    "Alm":"Alarma",
+    "AlmVal":"Valor de alarma (%)",
+	"battCtrl":"Alarma Battería",
+	"battSw":"BA1"
+  }
+}

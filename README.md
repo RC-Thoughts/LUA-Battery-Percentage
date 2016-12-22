@@ -1,8 +1,10 @@
 # LUA Battery Percentage
 Jeti LUA application to convert battery capacity consumption to percentage with add-ons
 
+DC/DS-16 version is slimmed down die memory limits.
+
 Installation:
-- Copy RCT-Batt.lua to DC/DS-24 SD-card to /Apps folder
+- Copy RCT-Batt.lua to transmitters SD-card to /Apps folder
 - If you have no "Lang" folder in /Apps create it
 - Copy Lang/RCT-Batt.jsn to transmitters /Apps/Lang folder
 - Run application in transmitter
