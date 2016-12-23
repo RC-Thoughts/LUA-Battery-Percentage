@@ -194,7 +194,7 @@ local function loop()
 	local Sw1, Sw2 = system.getInputsVal(Sw1, Sw2)
 	-----------------
 	if(sensor and sensor.valid) then
-		if (Sw1 == 1) then
+		if (Sw1 == 1 or Sw1 == nil) then
 			if(tSet1 == 0) then
 				tStmp = system.getTime()
 				tCur = tStmp
