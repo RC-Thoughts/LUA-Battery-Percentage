@@ -69,5 +69,33 @@
 	"AlmVal":"Valore Allarme (%)",
 	"battCtrl":"Allarme Batteria",
 	"battSw":"BA"
+  },
+  "sk":{
+    "appName":"Kapacita baterie",
+    "Sensor":"Vyber senzora",
+    "Settings1":"Bateria 1 Nastavenie",
+	"Settings2":" Bateria 2 Nastavenie",
+    "Label":"Senzor",
+	"wLabel":"Kapacita baterie",
+    "Switch":"Prepinac baterie",
+    "Capa":"Kapacita baterie (mAh)",
+    "Alm":"Alarm",
+    "AlmVal":"Hodnota Alarmu (%)",
+	"battCtrl":"Alarm baterie",
+	"battSw":"BA1"
+  },
+  "cz":{
+    "appName":"Kapacita baterie",
+    "Sensor":"Volba senzora",
+    "Settings1":"Baterie 1 Nastaveni",
+	"Settings2":" Baterie 2 Nastaveni",
+    "Label":"Senzor",
+	"wLabel":"Kapacita baterie",
+    "Switch":"Prepinac baterie",
+    "Capa":"Kapacita baterie (mAh)",
+    "Alm":"Alarm",
+    "AlmVal":"Hodnota Alarmu (%)",
+	"battCtrl":"Alarm baterie",
+	"battSw":"BA1"
   }
 }
