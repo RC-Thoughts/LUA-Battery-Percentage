@@ -12,7 +12,9 @@
     "Alm":"Alarm",
     "AlmVal":"Alarm Value (%)",
 	"battCtrl":"Battery Alarm",
-	"battSw":"BA"
+	"battSw":"BA",
+	"anSw":"Announcement Switch",
+	"anCap":"Capacity"
   },
   "de":{
     "appName":"Batterie-Prozentsatz",
@@ -26,7 +28,9 @@
     "Alm":"Alarm",
     "AlmVal":"Alarmwert (%)",
 	"battCtrl":"Batterie-Warnung",
-	"battSw":"BA"
+	"battSw":"BA",
+	"anSw":"Meldung Schalter",
+	"anCap":"Kapazit"
   },
   "fr":{
     "appName":"Batterie en Pourcentage",
@@ -40,7 +44,9 @@
     "Alm":"Alarme",
     "AlmVal":"Valeur d'alarme (%)",
 	"battCtrl":"Alarme Batterie",
-	"battSw":"BA"
+	"battSw":"BA",
+	"anSw":"Inter Annonce",
+	"anCap":"Capacite"
   },
   "es":{
     "appName":"Batería en porcentaje",
@@ -54,7 +60,9 @@
     "Alm":"Alarma",
     "AlmVal":"Valor de alarma (%)",
 	"battCtrl":"Alarma Battería",
-	"battSw":"BA"
+	"battSw":"BA",
+	"anSw":"Anuncio Interruptor",
+	"anCap":"Capacity"
   },
   "it":{
 	"appName":"Percentuale Batteria",
@@ -68,7 +76,9 @@
 	"Alm":"Allarme",
 	"AlmVal":"Valore Allarme (%)",
 	"battCtrl":"Allarme Batteria",
-	"battSw":"BA"
+	"battSw":"BA",
+	"anSw":"Annuncio Interruttore",
+	"anCap":"Capacita"
   },
   "sk":{
     "appName":"Kapacita baterie",
@@ -82,7 +92,9 @@
     "Alm":"Alarm",
     "AlmVal":"Hodnota Alarmu (%)",
 	"battCtrl":"Alarm baterie",
-	"battSw":"BA1"
+	"battSw":"BA1",
+	"anSw":"Oznam Vypnutie",
+	"anCap":"Capacity"
   },
   "cz":{
     "appName":"Kapacita baterie",
@@ -96,6 +108,8 @@
     "Alm":"Alarm",
     "AlmVal":"Hodnota Alarmu (%)",
 	"battCtrl":"Alarm baterie",
-	"battSw":"BA1"
+	"battSw":"BA1",
+	"anSw":"Prepinac Oznámení",
+	"anCap":"Kapacita"
   }
 }

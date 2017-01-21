@@ -9,6 +9,8 @@
 	2 different size packs. If no switch is defined only battery
 	1 is used.
 	
+	Voice announcement of battery percentage with switch
+	
 	App makes a LUA control (switch) that can be used as
 	any other switch, voices, alarms etc.
 	
@@ -23,17 +25,17 @@
 	---------------------------------------------------------
 	Battery Percentage is part of RC-Thoughts Jeti Tools.
 	---------------------------------------------------------
-	Released under MIT-license by Tero @ RC-Thoughts.com 2016
+	Released under MIT-license by Tero @ RC-Thoughts.com 2017
 	---------------------------------------------------------
 --]]
 --------------------------------------------------------------------------------
 -- Locals for the application
 local sens, sensid, senspa, telVal, alarm1, alarm2
-local alarm1Tr, alarm2Tr, res, Sw1, Sw2
+local alarm1Tr, alarm2Tr, res, Sw1, Sw2, anGo, anSw
 local sensorLalist = {"..."}
 local sensorIdlist = {"..."}
 local sensorPalist = {"..."}
-local tSet1, tSet2 = 0,0
+local tSet1, tSet2, anTime = 0,0,0
 --------------------------------------------------------------------------------
 -- Function for translation file-reading
 local function readFile(path) 
@@ -135,6 +137,11 @@ local function alarm2Changed(value)
 	alarm2Tr = string.format("%.1f", alarm2)
 	system.pSave("alarm2Tr", alarm2Tr)
 end
+-----------------
+local function anSwChanged(value)
+	anSw = value
+	system.pSave("anSw",value)
+end
 --------------------------------------------------------------------------------
 -- Draw the main form (Application inteface)
 local function initForm(subform)
@@ -150,6 +157,10 @@ local function initForm(subform)
 		form.addRow(2)
 		form.addLabel({label=trans.Sensor})
 		form.addSelectbox(sensorLalist,sens,true,sensorChanged)
+		
+		form.addRow(2)
+		form.addLabel({label=trans.anSw,width=220})
+		form.addInputbox(anSw,true,anSwChanged)
 		
 		form.addRow(1)
 		form.addLabel({label=trans.Settings1,font=FONT_BOLD})
@@ -193,18 +204,18 @@ end
 -- Display on main screen the selected battery and values, take care of correct alarm-value
 local function loop()
 	local sensor = system.getSensorByID(sensid, senspa)
-	local Sw1, Sw2 = system.getInputsVal(Sw1, Sw2)
+	local Sw1, Sw2, anGo = system.getInputsVal(Sw1, Sw2, anSw)
+	local tTime = system.getTime()
 	-----------------
 	if(sensor and sensor.valid) then
 		if (Sw1 == 1 or Sw1 == nil) then
 			if(tSet1 == 0) then
-				tStmp = system.getTime()
-				tCur = tStmp
-				tStr = tStmp + 5
+				tCur = tTime
+				tStr = tTime + 5
 				tSet1 = 1
 				tSet2 = 0
 				else
-				tCur = system.getTime()
+				tCur = tTime
 			end
 			res = (((capa1 - sensor.value) * 100) / capa1)
 			if(alarm1Tr == 0) then
@@ -222,13 +233,12 @@ local function loop()
 		end
 		if (Sw2 == 1) then
 			if(tSet2 == 0) then
-				tStmp = system.getTime()
-				tCur = tStmp
-				tStr = tStmp + 5
+				tCur = tTime
+				tStr = tTime + 5
 				tSet1 = 0
 				tSet2 = 1
 				else
-				tCur = system.getTime()
+				tCur = tTime
 			end
 			res = (((capa2 - sensor.value) * 100) / capa2) 
 			if(alarm2Tr == 0) then
@@ -258,6 +268,10 @@ local function loop()
 		tSet1 = 0
 		tSet2 = 0
 	end
+	if(anGo == 1 and telVal ~= "-" and anTime < tTime) then
+		system.playNumber(telVal, 0, "%", trans.anCap)
+		anTime = tTime + 3
+	end
 end
 --------------------------------------------------------------------------------
 -- Application initialization
@@ -274,11 +288,12 @@ local function init()
 	alarm2Tr = system.pLoad("alarm2Tr",0)
 	Sw1 = system.pLoad("Sw1")
 	Sw2 = system.pLoad("Sw2")
+	anSw = system.pLoad("anSw")
 	system.registerTelemetry(1,trans.wLabel,2,printTelem)
 	system.registerControl(3,trans.battSw,trans.battSw)
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-battVersion = "2.0"
+battVersion = "2.1"
 setLanguage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName}

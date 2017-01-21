@@ -26,7 +26,9 @@
 	"btn4":"Batt3",
 	"battSw":"BA1",
 	"neg":"No",
-	"pos":"Yes"
+	"pos":"Yes",
+	"anSw":"Announcement Switch",
+	"anCap":"Capacity"
   },
   "de":{
     "appName":"Batterie-Prozentsatz",
@@ -54,7 +56,9 @@
 	"btn4":"Batt3",
 	"battSw":"BA1",
 	"neg":"Nein",
-	"pos":"Ja"
+	"pos":"Ja",
+	"anSw":"Meldung Schalter",
+	"anCap":"Kapazit"
   },
   "fr":{
     "appName":"Batterie en Pourcentage",
@@ -82,7 +86,9 @@
 	"btn4":"Batt3",
 	"battSw":"BA1",
 	"neg":"No",
-	"pos":"Oui"
+	"pos":"Oui",
+	"anSw":"Inter Annonce",
+	"anCap":"Capacite"
   },
   "es":{
     "appName":"Batería en porcentaje",
@@ -110,7 +116,9 @@
 	"btn4":"Bat3",
 	"battSw":"BA1",
 	"neg":"No",
-	"pos":"Sí"
+	"pos":"Sí",
+	"anSw":"Anuncio Interruptor",
+	"anCap":"Capacity"
   },
   "it":{
 	"appName":"Percentuale Batteria",
@@ -138,7 +146,9 @@
 	"btn4":"Batt3",
 	"battSw":"BA1",
 	"neg":"No",
-	"pos":"Sì"
+	"pos":"Sì",
+	"anSw":"Annuncio Interruttore",
+	"anCap":"Capacita"
   },
   "sk":{
     "appName":"Kapacita v percentach",
@@ -166,7 +176,9 @@
 	"btn4":"Bat3",
 	"battSw":"BA1",
 	"neg":"Nie",
-	"pos":"Ano"
+	"pos":"Ano",
+	"anSw":"Oznam Vypnutie",
+	"anCap":"Capacity"
   },
   "cz":{
     "appName":"Kapacita v procentech",
@@ -194,6 +206,8 @@
 	"btn4":"Bat3",
 	"battSw":"BA1",
 	"neg":"Ne",
-	"pos":"Ano"
+	"pos":"Ano",
+	"anSw":"Prepinac Oznámení",
+	"anCap":"Kapacita"
   }
 }

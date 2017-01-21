@@ -12,6 +12,8 @@
 	
 	Possibility to use different audiofile per battery.
 	
+	Voice announcement of battery percentage with switch
+	
 	Also app makes a LUA control (switch) that can be used as
 	any other switch, voices, alarms etc.
 	
@@ -26,7 +28,7 @@
 	---------------------------------------------------------
 	Battery Percentage is part of RC-Thoughts Jeti Tools.
 	---------------------------------------------------------
-	Released under MIT-license by Tero @ RC-Thoughts.com 2016
+	Released under MIT-license by Tero @ RC-Thoughts.com 2017
 	---------------------------------------------------------
 --]]
 --------------------------------------------------------------------------------
@@ -35,23 +37,21 @@ local sens, sensid, senspa, telVal, trans
 local res1, res2, res3, lbl1, lbl2, lbl3
 local alarm1, alarm2, alarm3, Sw1, Sw2, Sw3
 local alarm1Tr, alarm2Tr, alarm3Tr, tSet1, tSet2, tSet3
-local rptSnd, sValid1, sValid2, sValid3
+local rptSnd, sValid1, sValid2, sValid3, anGo, anSw
 local vF1Played, vF2Played, vF3Played, battSym
 local rptSndlist = {}
 local battSymlist = {}
 local sensorLalist = {"..."}
 local sensorIdlist = {"..."}
 local sensorPalist = {"..."}
-local tSet1 = 0
-local tSet2 = 0
-local tSet3 = 0
+local tSet1, tSet2, tSet3, anTime = 0,0,0,0
 --------------------------------------------------------------------------------
 -- Function for translation file-reading
-local function readFile(path) 
+local function readFile(path)
 	local f = io.open(path,"r")
 	local lines={}
 	if(f) then
-		while 1 do 
+		while 1 do
 			local buf=io.read(f,512)
 			if(buf ~= "")then 
 				lines[#lines+1] = buf
@@ -60,15 +60,15 @@ local function readFile(path)
 			end   
 		end 
 		io.close(f)
-		return table.concat(lines,"") 
+		return table.concat(lines,"")
 	end
 end 
 --------------------------------------------------------------------------------
 -- Read translations
-local function setLanguage()	
+local function setLanguage()
 	local lng=system.getLocale();
 	local file = readFile("Apps/Lang/RCT-Batt.jsn")
-	local obj = json.decode(file)  
+	local obj = json.decode(file)
 	if(obj) then
 		trans = obj[lng] or obj[obj.default]
 	end
@@ -89,19 +89,19 @@ local function printTelem()
 	if (battSym == 2) then
 		local txtr,txtg,txtb
 		local bgr,bgg,bgb = lcd.getBgColor()
-		if (bgr+bgg+bgb)/3 >128 then 
+		if (bgr+bgg+bgb)/3 >128 then
 			txtr,txtg,txtb = 0,0,0
 			else
 			txtr,txtg,txtb = 255,255,255
 		end	
 		if (telVal == "-") then
-			lcd.drawRectangle(5,9,26,55)                                          
+			lcd.drawRectangle(5,9,26,55)
 			lcd.drawFilledRectangle(12,6,12,4)
 			lcd.drawText(145 - lcd.getTextWidth(FONT_MAXI,"-%"),10,"-%",FONT_MAXI)
 			lcd.drawText(145 - lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),54,"RC-Thoughts.com",FONT_MINI)
 			--lcd.drawImage(1,51, ":graph")
 			else
-			lcd.drawRectangle(5,9,26,55)                                          
+			lcd.drawRectangle(5,9,26,55)
 			lcd.drawFilledRectangle(12,6,12,4)
 			chgY = (64-(telVal*0.54))
 			chgH = ((telVal*0.54))
@@ -225,6 +225,11 @@ local function vF3Changed(value)
 	vF3=value
 	system.pSave("vF3",value)
 end
+-----------------
+local function anSwChanged(value)
+	anSw = value
+	system.pSave("anSw",value)
+end
 --------------------------------------------------------------------------------
 -- Draw the main form (Application inteface)
 -- Initialize with page 1
@@ -256,6 +261,10 @@ local function initForm(subform)
 		form.addRow(2)
 		form.addLabel({label=trans.rpt,width=200})
 		form.addSelectbox(rptSndlist,rptSnd,false,rptSndChanged)
+		
+		form.addRow(2)
+		form.addLabel({label=trans.anSw,width=220})
+		form.addInputbox(anSw,true,anSwChanged)
 		
 		form.addRow(1)
 		form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})
@@ -300,7 +309,7 @@ local function initForm(subform)
 			form.addAudioFilebox(vF1,vF1Changed)
 			
 			form.addRow(1)
-			form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})	
+			form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})
 			
 			form.setFocusedRow (1)
 			formID = 2
@@ -342,7 +351,7 @@ local function initForm(subform)
 				form.addAudioFilebox(vF2,vF2Changed)
 				
 				form.addRow(1)
-				form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})	
+				form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})
 				
 				form.setFocusedRow (1)
 				formID = 3
@@ -384,7 +393,7 @@ local function initForm(subform)
 					form.addAudioFilebox(vF3,vF3Changed)
 					
 					form.addRow(1)
-					form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})	
+					form.addLabel({label="Powered by RC-Thoughts.com - v."..battVersion.." ",font=FONT_MINI, alignRight=true})
 					
 					form.setFocusedRow (1)
 					formID = 4
@@ -414,20 +423,20 @@ end
 -- Display on main screen the selected battery and values, take care of correct alarm-value
 local function loop()
 	local sensor = system.getSensorByID(sensid, senspa)
-	local Sw1, Sw2, Sw3 = system.getInputsVal(Sw1, Sw2, Sw3)
+	local Sw1, Sw2, Sw3, anGo = system.getInputsVal(Sw1, Sw2, Sw3, anSw)
+	local tTime = system.getTime()
 	-----------------
 	if ((Sw1 == nil or Sw1 == 0 ) and (Sw2 == nil or Sw2 == 0) and (Sw3 == nil or Sw3 == 0)) then
 		system.registerTelemetry(1,lbl1,2,printTelem)
 		if(sensor and sensor.valid) then
 			if(tSet1 == 0) then
-				tStmp1 = system.getTime()
-				tCur1 = tStmp1
-				tStr1 = tStmp1 + 5
+				tCur1 = tTime
+				tStr1 = tTime + 5
 				tSet1 = 1
 				else
-				tCur1 = system.getTime()
+				tCur1 = tTime
 			end
-			res1 = (((capa1 - sensor.value) * 100) / capa1) 
+			res1 = (((capa1 - sensor.value) * 100) / capa1)
 			if (res1 < 0) then
 				res1 = 0
 				else
@@ -471,14 +480,13 @@ local function loop()
 		system.registerTelemetry(1,lbl1,2,printTelem)
 		if(sensor and sensor.valid) then
 			if(tSet1 == 0) then
-				tStmp1 = system.getTime()
-				tCur1 = tStmp1
-				tStr1 = tStmp1 + 5
+				tCur1 = tTime
+				tStr1 = tTime + 5
 				tSet1 = 1
 				else
-				tCur1 = system.getTime()
+				tCur1 = tTime
 			end
-			res1 = (((capa1 - sensor.value) * 100) / capa1) 
+			res1 = (((capa1 - sensor.value) * 100) / capa1)
 			if (res1 < 0) then
 				res1 = 0
 				else
@@ -523,14 +531,13 @@ local function loop()
 		system.registerTelemetry(1,lbl2,2,printTelem)
 		if(sensor and sensor.valid) then
 			if(tSet2 == 0) then
-				tStmp2 = system.getTime()
-				tCur2 = tStmp2
-				tStr2 = tStmp2 + 5
+				tCur2 = tTime
+				tStr2 = tTime + 5
 				tSet2 = 1
 				else
-				tCur2 = system.getTime()
+				tCur2 = tTime
 			end
-			res2 = (((capa2 - sensor.value) * 100) / capa2) 
+			res2 = (((capa2 - sensor.value) * 100) / capa2)
 			if (res2 < 0) then
 				res2 = 0
 				else
@@ -575,14 +582,13 @@ local function loop()
 		system.registerTelemetry(1,lbl3,2,printTelem)
 		if(sensor and sensor.valid) then
 			if(tSet3 == 0) then
-				tStmp3 = system.getTime()
-				tCur3 = tStmp3
-				tStr3 = tStmp3 + 5
+				tCur3 = tTime
+				tStr3 = tTime + 5
 				tSet3 = 1
 				else
-				tCur3 = system.getTime()
+				tCur3 = tTime
 			end
-			res3 = (((capa3 - sensor.value) * 100) / capa3) 
+			res3 = (((capa3 - sensor.value) * 100) / capa3)
 			if (res3 < 0) then
 				res3 = 0
 				else
@@ -622,8 +628,12 @@ local function loop()
 			tSet3 = 0
 		end
 	end
+	if(anGo == 1 and telVal ~= "-" and anTime < tTime) then
+		system.playNumber(telVal, 0, "%", trans.anCap)
+		anTime = tTime + 3
+	end
 end
---------------------------------------------------------------------------------Batterie 1
+--------------------------------------------------------------------------------
 -- Application initialization
 local function init()
 	telVal = "-"
@@ -654,11 +664,12 @@ local function init()
 	table.insert(rptSndlist,trans.pos)
 	table.insert(battSymlist,trans.neg)
 	table.insert(battSymlist,trans.pos)
+	anSw = system.pLoad("anSw")
 	system.registerTelemetry(1,lbl1,2,printTelem)
 	system.registerControl(10,trans.battCtrl,trans.battSw)
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-battVersion = "2.0"
+battVersion = "2.1"
 setLanguage()
-return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName} 					
+return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName}
