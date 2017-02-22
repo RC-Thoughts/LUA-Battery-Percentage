@@ -28,6 +28,7 @@
 	Released under MIT-license by Tero @ RC-Thoughts.com 2017
 	---------------------------------------------------------
 --]]
+collectgarbage()
 --------------------------------------------------------------------------------
 -- Locals for the application
 local sens, sensid, senspa, telVal, alarm1, alarm2
@@ -66,13 +67,17 @@ local function setLanguage()
 end
 --------------------------------------------------------------------------------
 -- Read available sensors for user to select
-local sensors = system.getSensors()
-for i,sensor in ipairs(sensors) do
-	if (sensor.label ~= "") then
-		table.insert(sensorLalist, string.format("%s", sensor.label))
-		table.insert(sensorIdlist, string.format("%s", sensor.id))
-		table.insert(sensorPalist, string.format("%s", sensor.param))
-	end
+local function readSensors()
+    local sensors = system.getSensors()
+    local format = string.format
+    local insert = table.insert
+    for i, sensor in ipairs(sensors) do
+        if (sensor.label ~= "") then
+            insert(sensorLalist, format("%s", sensor.label))
+            insert(sensorIdlist, format("%s", sensor.id))
+            insert(sensorPalist, format("%s", sensor.param))
+        end
+    end
 end
 --------------------------------------------------------------------------------
 -- Draw the telemetry windows
@@ -276,24 +281,28 @@ end
 --------------------------------------------------------------------------------
 -- Application initialization
 local function init()
+    local pLoad = system.pLoad
 	telVal = "-"
-	sens = system.pLoad("sens",0)
-	sensid = system.pLoad("sensid",0)
-	senspa = system.pLoad("senspa",0)
-	capa1 = system.pLoad("capa1",0)
-	capa2 = system.pLoad("capa2",0)
-	alarm1 = system.pLoad("alarm1",0)
-	alarm2 = system.pLoad("alarm2",0)
-	alarm1Tr = system.pLoad("alarm1Tr",0)
-	alarm2Tr = system.pLoad("alarm2Tr",0)
-	Sw1 = system.pLoad("Sw1")
-	Sw2 = system.pLoad("Sw2")
-	anSw = system.pLoad("anSw")
+	sens = pLoad("sens",0)
+	sensid = pLoad("sensid",0)
+	senspa = pLoad("senspa",0)
+	capa1 = pLoad("capa1",0)
+	capa2 = pLoad("capa2",0)
+	alarm1 = pLoad("alarm1",0)
+	alarm2 = pLoad("alarm2",0)
+	alarm1Tr = pLoad("alarm1Tr",0)
+	alarm2Tr = pLoad("alarm2Tr",0)
+	Sw1 = pLoad("Sw1")
+	Sw2 = pLoad("Sw2")
+	anSw = pLoad("anSw")
+    readSensors()
 	system.registerTelemetry(1,trans.wLabel,2,printTelem)
 	system.registerControl(3,trans.battSw,trans.battSw)
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
+    collectgarbage()
 end
 --------------------------------------------------------------------------------
-battVersion = "2.1"
+battVersion = "2.2"
 setLanguage()
+collectgarbage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName}
