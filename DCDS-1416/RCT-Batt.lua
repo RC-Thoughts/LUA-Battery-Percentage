@@ -38,32 +38,14 @@ local sensorIdlist = {"..."}
 local sensorPalist = {"..."}
 local tSet1, tSet2, anTime = 0,0,0
 --------------------------------------------------------------------------------
--- Function for translation file-reading
-local function readFile(path) 
-	local f = io.open(path,"r")
-	local lines={}
-	if(f) then
-		while 1 do 
-			local buf=io.read(f,512)
-			if(buf ~= "")then
-				lines[#lines+1] = buf
-				else
-				break
-			end   
-		end 
-		io.close(f)
-		return table.concat(lines,"")
-	end
-end 
---------------------------------------------------------------------------------
 -- Read translations
 local function setLanguage()
-	local lng=system.getLocale();
-	local file = readFile("Apps/Lang/RCT-Batt.jsn")
-	local obj = json.decode(file)
-	if(obj) then
-		trans = obj[lng] or obj[obj.default]
-	end
+    local lng=system.getLocale()
+    local file = io.readall("Apps/Lang/RCT-Batt.jsn")
+    local obj = json.decode(file)
+    if(obj) then
+        trans = obj[lng] or obj[obj.default]
+    end
 end
 --------------------------------------------------------------------------------
 -- Read available sensors for user to select
@@ -277,6 +259,7 @@ local function loop()
 		system.playNumber(telVal, 0, "%", trans.anCap)
 		anTime = tTime + 3
 	end
+    collectgarbage()
 end
 --------------------------------------------------------------------------------
 -- Application initialization
@@ -302,7 +285,7 @@ local function init()
     collectgarbage()
 end
 --------------------------------------------------------------------------------
-battVersion = "2.2"
+battVersion = "2.3"
 setLanguage()
 collectgarbage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName}
