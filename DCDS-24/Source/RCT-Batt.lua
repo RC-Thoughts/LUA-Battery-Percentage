@@ -654,7 +654,7 @@ local function init()
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-battVersion = "2.3"
+battVersion = "2.4"
 setLanguage()
 collectgarbage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName}

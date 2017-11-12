@@ -31,7 +31,7 @@
 collectgarbage()
 --------------------------------------------------------------------------------
 -- Locals for the application
-local sens, sensid, senspa, telVal, alarm1, alarm2
+local sens, sensid, senspa, telVal, alarm1, alarm2, lbl1, lbl2
 local alarm1Tr, alarm2Tr, res, Sw1, Sw2, anGo, anSw
 local sensorLalist = {"..."}
 local sensorIdlist = {"..."}
@@ -94,6 +94,19 @@ local function sensorChanged(value)
 	system.pSave("senspa",senspa)
 end
 -----------------
+local function lbl1Changed(value)
+	lbl1=value
+	system.pSave("lbl1",value)
+	-- Redraw telemetrywindow if label is changed by user
+	system.registerTelemetry(1,lbl1,2,printTelem)
+end
+local function lbl2Changed(value)
+	lbl2=value
+	system.pSave("lbl2",value)
+	-- Redraw telemetrywindow if label is changed by user
+	system.registerTelemetry(1,lbl2,2,printTelem)
+end
+-----------------
 local function SwChanged1(value)
 	Sw1 = value
 	system.pSave("Sw1",value)
@@ -151,6 +164,10 @@ local function initForm(subform)
 		
 		form.addRow(1)
 		form.addLabel({label=trans.Settings1,font=FONT_BOLD})
+        
+        form.addRow(2)
+		form.addLabel({label=trans.LabelW,width=160})
+		form.addTextbox(lbl1,14,lbl1Changed)
 		
 		form.addRow(2)
 		form.addLabel({label=trans.Switch})
@@ -166,6 +183,10 @@ local function initForm(subform)
 		
 		form.addRow(1)
 		form.addLabel({label=trans.Settings2,font=FONT_BOLD})
+        
+        form.addRow(2)
+		form.addLabel({label=trans.LabelW,width=160})
+		form.addTextbox(lbl2,14,lbl2Changed)
 		
 		form.addRow(2)
 		form.addLabel({label=trans.Switch})
@@ -196,6 +217,7 @@ local function loop()
 	-----------------
 	if(sensor and sensor.valid) then
 		if (Sw1 == 1 or Sw1 == nil) then
+            system.registerTelemetry(1,lbl1,2,printTelem)
 			if(tSet1 == 0) then
 				tCur = tTime
 				tStr = tTime + 5
@@ -219,6 +241,7 @@ local function loop()
 			end
 		end
 		if (Sw2 == 1) then
+            system.registerTelemetry(1,lbl2,2,printTelem)
 			if(tSet2 == 0) then
 				tCur = tTime
 				tStr = tTime + 5
@@ -254,7 +277,7 @@ local function loop()
 		telVal = "-"
 		tSet1 = 0
 		tSet2 = 0
-	end
+    end
 	if(anGo == 1 and telVal ~= "-" and anTime < tTime) then
 		system.playNumber(telVal, 0, "%", trans.anCap)
 		anTime = tTime + 3
@@ -269,6 +292,8 @@ local function init()
 	sens = pLoad("sens",0)
 	sensid = pLoad("sensid",0)
 	senspa = pLoad("senspa",0)
+    lbl1 = pLoad("lbl1",trans.Batt1)
+	lbl2 = pLoad("lbl2",trans.Batt2)
 	capa1 = pLoad("capa1",0)
 	capa2 = pLoad("capa2",0)
 	alarm1 = pLoad("alarm1",0)
@@ -279,13 +304,13 @@ local function init()
 	Sw2 = pLoad("Sw2")
 	anSw = pLoad("anSw")
     readSensors()
-	system.registerTelemetry(1,trans.wLabel,2,printTelem)
+    system.registerTelemetry(1,lbl1,2,printTelem)
 	system.registerControl(3,trans.battSw,trans.battSw)
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
     collectgarbage()
 end
 --------------------------------------------------------------------------------
-battVersion = "2.3"
+battVersion = "2.4"
 setLanguage()
 collectgarbage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName}
