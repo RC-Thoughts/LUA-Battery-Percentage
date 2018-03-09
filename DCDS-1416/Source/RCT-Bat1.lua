@@ -41,7 +41,7 @@ local tSet1, tSet2, anTime = 0,0,0
 -- Read translations
 local function setLanguage()
     local lng=system.getLocale()
-    local file = io.readall("Apps/Lang/RCT-Batt.jsn")
+    local file = io.readall("Apps/Lang/RCT-Bat1.jsn")
     local obj = json.decode(file)
     if(obj) then
         trans = obj[lng] or obj[obj.default]
