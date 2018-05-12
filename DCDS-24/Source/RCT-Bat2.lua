@@ -34,7 +34,7 @@
 collectgarbage()
 --------------------------------------------------------------------------------
 -- Locals for the application
-local sens, sensid, senspa, telVal, trans
+local sens, sensid, senspa, telVal, trans, sensorvalue
 local res1, res2, res3, lbl1, lbl2, lbl3
 local alarm1, alarm2, alarm3, Sw1, Sw2, Sw3
 local alarm1Tr, alarm2Tr, alarm3Tr, tSet1, tSet2, tSet3
@@ -408,7 +408,7 @@ local function loop()
 	local sensor = system.getSensorByID(sensid, senspa)
 	local Sw1, Sw2, Sw3, anGo = system.getInputsVal(Sw1, Sw2, Sw3, anSw)
 	local tTime = system.getTime()
-	-----------------
+    -----------------
 	if ((Sw1 == nil or Sw1 == 0 ) and (Sw2 == nil or Sw2 == 0) and (Sw3 == nil or Sw3 == 0)) then
 		system.registerTelemetry(1,lbl1,2,printTelem)
 		if(sensor and sensor.valid) then
@@ -419,7 +419,12 @@ local function loop()
 				else
 				tCur1 = tTime
 			end
-			res1 = (((capa1 - sensor.value) * 100) / capa1)
+            if(sensor.unit == "Ah") then
+                sensorvalue = sensor.value * 1000
+            else
+                sensorvalue = sensor.value
+            end
+			res1 = (((capa1 - sensorvalue) * 100) / capa1)
 			if (res1 < 0) then
 				res1 = 0
 				else
@@ -469,7 +474,12 @@ local function loop()
 				else
 				tCur1 = tTime
 			end
-			res1 = (((capa1 - sensor.value) * 100) / capa1)
+            if(sensor.unit == "Ah") then
+                sensorvalue = sensor.value * 1000
+            else
+                sensorvalue = sensor.value
+            end
+			res1 = (((capa1 - sensorvalue) * 100) / capa1)
 			if (res1 < 0) then
 				res1 = 0
 				else
@@ -520,7 +530,12 @@ local function loop()
 				else
 				tCur2 = tTime
 			end
-			res2 = (((capa2 - sensor.value) * 100) / capa2)
+            if(sensor.unit == "Ah") then
+                sensorvalue = sensor.value * 1000
+            else
+                sensorvalue = sensor.value
+            end
+			res2 = (((capa2 - sensorvalue) * 100) / capa2)
 			if (res2 < 0) then
 				res2 = 0
 				else
@@ -571,7 +586,12 @@ local function loop()
 				else
 				tCur3 = tTime
 			end
-			res3 = (((capa3 - sensor.value) * 100) / capa3)
+            if(sensor.unit == "Ah") then
+                sensorvalue = sensor.value * 1000
+            else
+                sensorvalue = sensor.value
+            end
+			res3 = (((capa3 - sensorvalue) * 100) / capa3)
 			if (res3 < 0) then
 				res3 = 0
 				else
@@ -654,7 +674,7 @@ local function init()
 	system.registerForm(1,MENU_APPS,trans.appName,initForm,keyPressed)
 end
 --------------------------------------------------------------------------------
-battVersion = "2.4"
+battVersion = "2.5"
 setLanguage()
 collectgarbage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName}

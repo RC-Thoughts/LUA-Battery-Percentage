@@ -36,7 +36,7 @@ local alarm1Tr, alarm2Tr, res, Sw1, Sw2, anGo, anSw
 local sensorLalist = {"..."}
 local sensorIdlist = {"..."}
 local sensorPalist = {"..."}
-local tSet1, tSet2, anTime = 0,0,0
+local tSet1, tSet2, anTime, sensorvalue = 0,0,0
 --------------------------------------------------------------------------------
 -- Read translations
 local function setLanguage()
@@ -226,7 +226,12 @@ local function loop()
 				else
 				tCur = tTime
 			end
-			res = (((capa1 - sensor.value) * 100) / capa1)
+            if(sensor.unit == "Ah") then
+                sensorvalue = sensor.value * 1000
+            else
+                sensorvalue = sensor.value
+            end
+			res = (((capa1 - sensorvalue) * 100) / capa1)
 			if(alarm1Tr == 0) then
 				system.setControl(3,0,0,0)
 				tStr = 0
@@ -250,7 +255,12 @@ local function loop()
 				else
 				tCur = tTime
 			end
-			res = (((capa2 - sensor.value) * 100) / capa2) 
+            if(sensor.unit == "Ah") then
+                sensorvalue = sensor.value * 1000
+            else
+                sensorvalue = sensor.value
+            end
+			res = (((capa2 - sensorvalue) * 100) / capa2) 
 			if(alarm2Tr == 0) then
 				system.setControl(3,0,0,0)
 				tStr = 0
@@ -310,7 +320,7 @@ local function init()
     collectgarbage()
 end
 --------------------------------------------------------------------------------
-battVersion = "2.4"
+battVersion = "2.5"
 setLanguage()
 collectgarbage()
 return {init=init, loop=loop, author="RC-Thoughts", version=battVersion, name=trans.appName}
